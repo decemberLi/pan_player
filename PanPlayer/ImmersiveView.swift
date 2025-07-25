@@ -42,18 +42,24 @@ struct ImmersiveView: View {
         // 创建视频实体
         let videoEntity = ModelEntity(mesh: hemisphereMesh, materials: [videoMaterial])
         
-        // 设置位置（用户在半球内部观看180度视频）
-        videoEntity.position = .init(x: 0, y: 0, z: 0)
+        // 旋转半球让画面面向用户前方（绕Y轴旋转180度）
+        videoEntity.transform.rotation = simd_quatf(angle: Float.pi, axis: SIMD3<Float>(0, 1, 0))
+        videoEntity.position = .init(x: 0, y: 0, z: -10)
         
         // 添加到场景
         content.add(videoEntity)
         
-        // 开始播放
-        player.play()
-        appModel.isVideoPlaying = true
+        
         
         // 保存引用
         self.videoEntity = videoEntity
+        Task {
+          try? await  Task.sleep(nanoseconds: 1000000000)//1秒
+            
+            // 开始播放
+            player.play()
+            appModel.isVideoPlaying = true
+        }
     }
     
     // 创建半球网格（只有前180度）

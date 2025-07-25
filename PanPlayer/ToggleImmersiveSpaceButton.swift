@@ -27,6 +27,7 @@ struct ToggleImmersiveSpaceButton: View {
                         // Only set .closed in ImmersiveView.onDisappear().
 
                     case .closed:
+                        
                         appModel.immersiveSpaceState = .inTransition
                         switch await openImmersiveSpace(id: appModel.immersiveSpaceID) {
                             case .opened:
@@ -43,7 +44,7 @@ struct ToggleImmersiveSpaceButton: View {
                                 // On unknown response, assume space did not open.
                                 appModel.immersiveSpaceState = .closed
                         }
-                    dismissWindow(id: "mainWindow")
+                        dismissWindow(id: "mainWindow")
 
                     case .inTransition:
                         // This case should not ever happen because button is disabled for this case.
