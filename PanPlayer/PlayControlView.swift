@@ -7,7 +7,11 @@
 import SwiftUI
 
 struct PlayControlView : View {
+    @Environment(AppModel.self) var appModel
+    
     var body: some View {
-        
+        HStack {
+            
+        }
     }
 }

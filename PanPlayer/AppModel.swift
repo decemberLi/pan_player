@@ -91,4 +91,5 @@ class AppModel {
         currentVideoTime = 0
         videoDuration = 0
     }
+
 }
