@@ -18,19 +18,46 @@ struct ContentView: View {
     @State private var showPlayer = false
 
     var body: some View {
-        VStack(spacing: 20) {
-            
-            // 文件选择按钮
-            Button(action: {
-                showingFilePicker = true
-            }) {
-                Label("选择180度VR视频文件", systemImage: "folder")
-                    .font(.title2)
-                    .padding()
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+        Grid(horizontalSpacing: 30, verticalSpacing: 30) {
+            GridRow {
+                // 文件选择按钮
+                Button(action: {
+                    showingFilePicker = true
+                }) {
+                    VStack(spacing: 10) {
+                        Image(systemName: "folder.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.blue)
+                        Text("选择视频文件")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(width: 120, height: 120)
+                    .background(Color.clear)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                // 115网盘按钮
+                Button(action: {
+                    // TODO: 添加115网盘功能
+                }) {
+                    VStack(spacing: 10) {
+                        Image(systemName: "icloud.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.green)
+                        Text("115网盘")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(width: 120, height: 120)
+                    .background(Color.clear)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-            
         }
         .padding()
         .fileImporter(
