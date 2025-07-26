@@ -31,7 +31,6 @@ class AppModel {
     func selectVideo(url: URL) {
         selectedVideoURL = url
         player = AVPlayer(url: url)
-        
         // 获取视频时长
         let asset = AVAsset(url: url)
         Task {

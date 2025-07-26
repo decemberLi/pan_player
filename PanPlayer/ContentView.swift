@@ -13,7 +13,9 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.pushWindow) private var pushWindow
     @State private var showingFilePicker = false
+    @State private var showPlayer = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -29,15 +31,6 @@ struct ContentView: View {
                     .cornerRadius(10)
             }
             
-            // 视频播放器（2D预览）
-            if let player = appModel.player {
-                VideoPlayer(player: player)
-                    .cornerRadius(10)
-            }
-            
-            // VR模式按钮
-            ToggleImmersiveSpaceButton()
-                .disabled(appModel.selectedVideoURL == nil)
         }
         .padding()
         .fileImporter(
@@ -49,10 +42,14 @@ struct ContentView: View {
             case .success(let urls):
                 if let url = urls.first {
                     appModel.selectVideo(url: url)
+                    showPlayer = true
                 }
             case .failure(let error):
                 print("文件选择错误: \(error)")
             }
+        }
+        .fullScreenCover(isPresented: $showPlayer) {
+            PlayView()
         }
     }
     

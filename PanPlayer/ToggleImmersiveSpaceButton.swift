@@ -52,15 +52,8 @@ struct ToggleImmersiveSpaceButton: View {
                 }
             }
         } label: {
-            HStack {
-                Image(systemName: appModel.immersiveSpaceState == .open ? "eye.slash" : "eye")
-                    .font(.title2)
-                Text(appModel.immersiveSpaceState == .open ? "退出VR模式" : "进入VR模式")
-                    .font(.headline)
-            }
-            .padding()
-            .foregroundColor(.white)
-            .cornerRadius(10)
+            Image(systemName: appModel.immersiveSpaceState == .open ? "eye.slash" : "eye")
+                .font(.title2)
         }
         .disabled(appModel.immersiveSpaceState == .inTransition)
         .animation(.none, value: 0)
