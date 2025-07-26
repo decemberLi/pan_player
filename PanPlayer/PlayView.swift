@@ -9,7 +9,7 @@ struct AVPlayerViewControllerWrapper: UIViewControllerRepresentable {
         controller.player = player
         controller.showsPlaybackControls = true
         let infoCircle = UIImage(systemName: "eye")
-        let showMoreInfo = UIAction(title: "", image: infoCircle) { action in
+        let showMoreInfo = UIAction(title: "Show VR", image: infoCircle) { action in
             // Navigate to a screen to display more information.
         }
         // Append the action to the array.
