@@ -16,6 +16,10 @@ struct ContentView: View {
     @Environment(\.pushWindow) private var pushWindow
     @State private var showingFilePicker = false
     @State private var showPlayer = false
+    @State private var showLoginAlert = false
+    @State private var showWebView = false
+    @State private var webViewUrl: URL? = nil
+    @State private var detectedUrl: String? = nil
 
     var body: some View {
         Grid(horizontalSpacing: 30, verticalSpacing: 30) {
@@ -41,7 +45,12 @@ struct ContentView: View {
                 
                 // 115网盘按钮
                 Button(action: {
-                    // TODO: 添加115网盘功能
+                    // 检查UserDefaults中是否包含115token
+                    if UserDefaults.standard.string(forKey: "115token") == nil {
+                        showLoginAlert = true
+                    } else {
+                        // TODO: 已登录状态下的操作
+                    }
                 }) {
                     VStack(spacing: 10) {
                         Image(systemName: "icloud.fill")
@@ -57,6 +66,18 @@ struct ContentView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(PlainButtonStyle())
+                .alert("需要登录", isPresented: $showLoginAlert) {
+                    Button("确定") {
+                        // 跳转到115登录页面
+                        if let url = URL(string: "https://passportapi.115.com/open/authorize?client_id=100197637&redirect_uri=https://vrplayer.space&response_type=code&state=123456") {
+                            webViewUrl = url
+                            showWebView = true
+                        }
+                    }
+                    Button("取消", role: .cancel) { }
+                } message: {
+                    Text("检测到您尚未登录115网盘，点击确定前往登录页面。")
+                }
             }
         }
         .padding()
@@ -77,6 +98,17 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $showPlayer) {
             PlayView()
+        }
+        .fullScreenCover(isPresented: $showWebView) {
+            if let url = webViewUrl {
+                WebViewContainer(url: url) { detectedUrl in
+                    // 处理检测到的URL
+                    self.detectedUrl = detectedUrl
+                    self.showWebView = false
+                    print("检测到的URL: \(detectedUrl)")
+                    // 这里可以添加进一步处理URL的逻辑
+                }
+            }
         }
     }
     
