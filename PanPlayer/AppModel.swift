@@ -23,7 +23,11 @@ class AppModel {
     // 视频相关状态
     var selectedVideoURL: URL?
     var isVideoPlaying: Bool = false
-    var player: AVPlayer?
+    var player: AVPlayer? {
+        didSet {
+            oldValue?.pause()
+        }
+    }
     var currentVideoTime: Double = 0
     var videoDuration: Double = 0
     var controlWindowIsShow: Bool = false

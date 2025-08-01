@@ -33,6 +33,7 @@ struct ImmersiveView: View {
         .onDisappear {
             // 设置VR空间状态为关闭
             appModel.immersiveSpaceState = .closed
+            appModel.player?.pause()
         }
         .gesture(
           TapGesture()
