@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8EC41A5A2E33D71B00534743 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 8EC41A592E33D71B00534743 /* RealityKitContent */; };
+		8EC41AB52E3C779100534743 /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 8EC41AB42E3C779100534743 /* Toasts */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8EC41AB52E3C779100534743 /* Toasts in Frameworks */,
 				8EC41A5A2E33D71B00534743 /* RealityKitContent in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -94,6 +96,7 @@
 			name = PanPlayer;
 			packageProductDependencies = (
 				8EC41A592E33D71B00534743 /* RealityKitContent */,
+				8EC41AB42E3C779100534743 /* Toasts */,
 			);
 			productName = PanPlayer;
 			productReference = 8EC41A542E33D71B00534743 /* PanPlayer.app */;
@@ -123,6 +126,9 @@
 			);
 			mainGroup = 8EC41A4B2E33D71B00534743;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8EC41AB32E3C779100534743 /* XCRemoteSwiftPackageReference "swiftui-toasts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8EC41A552E33D71B00534743 /* Products */;
 			projectDirPath = "";
@@ -356,10 +362,26 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		8EC41AB32E3C779100534743 /* XCRemoteSwiftPackageReference "swiftui-toasts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sunghyun-k/swiftui-toasts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		8EC41A592E33D71B00534743 /* RealityKitContent */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = RealityKitContent;
+		};
+		8EC41AB42E3C779100534743 /* Toasts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8EC41AB32E3C779100534743 /* XCRemoteSwiftPackageReference "swiftui-toasts" */;
+			productName = Toasts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

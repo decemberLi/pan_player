@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Toasts
 
 @main
 struct PanPlayerApp: App {
@@ -16,6 +17,7 @@ struct PanPlayerApp: App {
         WindowGroup(id:"mainWindow") {
             ContentView()
                 .environment(appModel)
+                .installToast()
         }
         
         WindowGroup(id:"playControlWindow"){

@@ -10,17 +10,18 @@ import RealityKit
 import RealityKitContent
 import AVKit
 import UniformTypeIdentifiers
+import Toasts
 
 struct ContentView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.pushWindow) private var pushWindow
+    @Environment(\.presentToast) var presentToast
+    
     @State private var showingFilePicker = false
     @State private var showPlayer = false
     @State private var showLoginAlert = false
     @State private var showWebView = false
-    @State private var webViewUrl: URL? = nil
-    @State private var detectedUrl: String? = nil
-
+    
     var body: some View {
         Grid(horizontalSpacing: 30, verticalSpacing: 30) {
             GridRow {
@@ -68,11 +69,7 @@ struct ContentView: View {
                 .buttonStyle(PlainButtonStyle())
                 .alert("需要登录", isPresented: $showLoginAlert) {
                     Button("确定") {
-                        // 跳转到115登录页面
-                        if let url = URL(string: "https://passportapi.115.com/open/authorize?client_id=100197637&redirect_uri=https://vrplayer.space&response_type=code&state=123456") {
-                            webViewUrl = url
-                            showWebView = true
-                        }
+                        showWebView = true
                     }
                     Button("取消", role: .cancel) { }
                 } message: {
@@ -100,24 +97,31 @@ struct ContentView: View {
             PlayView()
         }
         .fullScreenCover(isPresented: $showWebView) {
-            if let url = webViewUrl {
-                WebViewContainer(url: url) { detectedUrl in
-                    // 处理检测到的URL
-                    self.detectedUrl = detectedUrl
-                    self.showWebView = false
-                    print("检测到的URL: \(detectedUrl)")
-                    // 这里可以添加进一步处理URL的逻辑
+            let url = TokenManager115.shared.requestWebURL
+            WebViewContainer(url: url) { params in
+                // 处理检测到的URL
+                self.showWebView = false
+                print("检测到的参数: \(params)")
+                let code = params["code"]
+                let toast = ToastValue(
+                    icon: Image(systemName: "bell"),
+                    message: "获取token失败"
+                )
+                guard let code else{
+                    presentToast(toast)
+                    return
+                }
+                Task {
+                    do {
+                        try await TokenManager115.shared.getToken(code: code)
+                    } catch {
+                        presentToast(toast)
+                    }
                 }
             }
         }
     }
     
-    // 格式化时间显示
-    private func formatTime(_ time: Double) -> String {
-        let minutes = Int(time) / 60
-        let seconds = Int(time) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
 }
 
 #Preview(windowStyle: .automatic) {
