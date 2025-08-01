@@ -73,14 +73,14 @@ struct ContentView: View {
                         Button("确定") {
                             #if DEBUG
                             //https://vrplayer.space/?code=26f2ad4e36f385372e6310e52c42832d&state=123456
-                            Task {
-                                do {
-                                    try await TokenManager115.shared.getToken(code: "26f2ad4e36f385372e6310e52c42832d", stateString: "123456")
-                                }catch{
+                            // Task {
+                            //     do {
+                            //         try await TokenManager115.shared.getToken(code: "26f2ad4e36f385372e6310e52c42832d", stateString: "123456")
+                            //     }catch{
                                     
-                                }
-                            }
-                            return
+                            //     }
+                            // }
+                            // return
                             #endif
                             showWebView = true
                         }

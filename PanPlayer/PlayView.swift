@@ -4,9 +4,10 @@ import AVKit
 struct AVPlayerViewControllerWrapper: UIViewControllerRepresentable {
     let player: AVPlayer?
     var showVR : (()->Void)?
+    static var controller = AVPlayerViewController()
     
     func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let controller = AVPlayerViewController()
+        let controller = Self.controller
         controller.player = player
         controller.showsPlaybackControls = true
         let infoCircle = UIImage(systemName: "eye")
@@ -19,7 +20,7 @@ struct AVPlayerViewControllerWrapper: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
-        uiViewController.player = player
+        
     }
 }
 

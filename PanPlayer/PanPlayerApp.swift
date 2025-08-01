@@ -15,7 +15,7 @@ struct PanPlayerApp: App {
 
     var body: some Scene {
         WindowGroup(id:"mainWindow") {
-            ContentView()
+            MainView()
                 .environment(appModel)
                 .installToast()
         }

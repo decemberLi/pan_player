@@ -66,7 +66,7 @@ class TokenManager115 {
         let tokenJson = UserDefaults.standard.string(forKey: TokenManager115.tokenKey)
         guard let tokenData = tokenJson?.data(using: .utf8) else { return }
         let jsonString = String(data: tokenData, encoding: .utf8)
-        print("json -- \(jsonString ?? "")")
+        print("token json -- \(jsonString ?? "")")
         guard let tokenJson = try? JSONSerialization.jsonObject(with: tokenData, options: []) as? [String: Any]
               else { return }
         token = tokenJson["access_token"] as? String
