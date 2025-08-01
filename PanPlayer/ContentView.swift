@@ -50,7 +50,11 @@ struct ContentView: View {
                     if UserDefaults.standard.string(forKey: "115token") == nil {
                         showLoginAlert = true
                     } else {
-                        // TODO: 已登录状态下的操作
+                        // 导航到FileListView115
+                        pushWindow(id: "fileList", content: {
+                            FileListView115(cid: nil)
+                                .environment(appModel)
+                        })
                     }
                 }) {
                     VStack(spacing: 10) {

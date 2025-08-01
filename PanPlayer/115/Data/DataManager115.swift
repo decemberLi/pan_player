@@ -1,0 +1,70 @@
+import Foundation
+// FileData115 model is in the same directory
+
+class DataManager115 {
+    static let shared = DataManager115()
+    private init() {}
+
+    ///open/ufile/files
+    /// 获取文件列表
+    func getFileList(cid: String?,limit: Int = 20,offset: Int = 0) async throws -> FileData115 {
+        //请求接口 https://passportapi.115.com/open/ufile/files
+        let url = URL(string: "https://passportapi.115.com/open/ufile/files")!
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        components?.queryItems = [
+            URLQueryItem(name: "cid", value: cid),
+            URLQueryItem(name: "limit", value: "\(limit)"),
+            URLQueryItem(name: "offset", value: "\(offset)")
+        ]
+        var headers = [
+            "Authorization": "Bearer \(TokenManager115.shared.token ?? "")"
+        ]
+        var request = URLRequest(url: components!.url!, method: .get)
+        
+        // 添加认证token
+        if let token = TokenManager115.shared.token {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw TokenManagerError.networkError
+        }
+        
+        // 使用FileData115模型解析数据
+        let decoder = JSONDecoder()
+        let fileData = try decoder.decode(FileData115.self, from: data)
+        return fileData
+    }
+
+    ///open/video/play
+    /// 获取视频播放地址
+    func getVideoPlayURL(pick_code: String) async throws -> VideoData115 {
+        //请求接口 https://passportapi.115.com/open/video/play
+        //请求参数是form-data形式放到body里面
+        let url = URL(string: "https://passportapi.115.com/open/video/play")!
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        var headers = [
+            "Authorization": "Bearer \(TokenManager115.shared.token ?? "")"
+        ]
+        var request = URLRequest(url: components!.url!, method: .post)
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(TokenManager115.shared.token ?? "")", forHTTPHeaderField: "Authorization")
+        request.httpBody = "pick_code=\(pick_code)".data(using: .utf8)
+        
+        // 添加认证token
+        if let token = TokenManager115.shared.token {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw TokenManagerError.networkError
+        }
+        // 使用VideoData115模型解析数据
+        let decoder = JSONDecoder()
+        let videoData = try decoder.decode(VideoData115.self, from: data)
+        return videoData
+    }
+    
+}
