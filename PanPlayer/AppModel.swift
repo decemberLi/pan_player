@@ -26,13 +26,14 @@ class AppModel {
     var player: AVPlayer?
     var currentVideoTime: Double = 0
     var videoDuration: Double = 0
+    var controlWindowIsShow: Bool = false
     
     // 选择视频文件
     func selectVideo(url: URL) {
         selectedVideoURL = url
         player = AVPlayer(url: url)
         // 获取视频时长
-        let asset = AVAsset(url: url)
+        let asset = AVURLAsset(url: url)
         Task {
             do {
                 let duration = try await asset.load(.duration)

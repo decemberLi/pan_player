@@ -12,6 +12,10 @@ import AVKit
 
 struct ImmersiveView: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
+    
     @State private var videoEntity: ModelEntity?
     @State private var playerLayer: AVPlayerLayer?
     
@@ -30,6 +34,22 @@ struct ImmersiveView: View {
             // 设置VR空间状态为关闭
             appModel.immersiveSpaceState = .closed
         }
+        .gesture(
+          TapGesture()
+            .targetedToAnyEntity()
+            .onEnded { value in
+                Task {
+                    if appModel.controlWindowIsShow {
+                        dismissWindow(id:"playControlWindow")
+                        appModel.controlWindowIsShow = false
+                    }else{
+                        openWindow(id:"playControlWindow")
+                        appModel.controlWindowIsShow = true
+                    }
+                }
+            }
+        )
+        
     }
     
     private func setup180VRVideoPlayer(player: AVPlayer, content: RealityViewContent) {
@@ -42,14 +62,22 @@ struct ImmersiveView: View {
         // 创建视频实体
         let videoEntity = ModelEntity(mesh: hemisphereMesh, materials: [videoMaterial])
         
+        // 自动生成（简单模型适用）
+        videoEntity.generateCollisionShapes(recursive: false, static: true)
+        videoEntity.components.set(InputTargetComponent())
+   
+        
         // 旋转半球让画面面向用户前方（绕Y轴旋转180度）
         videoEntity.transform.rotation = simd_quatf(angle: Float.pi, axis: SIMD3<Float>(0, 1, 0))
         videoEntity.position = .init(x: 0, y: 0, z: -10)
         
+        
+
+        // 手动指定形状（推荐复杂模型）
+        videoEntity.collision = CollisionComponent(shapes: [.generateSphere(radius: 20)])
+        
         // 添加到场景
         content.add(videoEntity)
-        
-        
         
         // 保存引用
         self.videoEntity = videoEntity

@@ -5,48 +5,56 @@ import Toasts
 struct FileListView115: View {
     @Environment(\.presentToast) var presentToast
     @Environment(AppModel.self) private var appModel
-    @Environment(\.pushWindow) private var pushWindow
-    @Environment(\.dismissWindow) private var dismissWindow
     
     let cid: String?
     @State private var fileList: [FileItem] = []
     @State private var isLoading = false
     @State private var offset = 0
     @State private var hasMore = true
+    @State private var showVideo = false
     
     private let gridItems = [
         GridItem(.flexible()),
         GridItem(.flexible()),
-        GridItem(.flexible())
+        GridItem(.flexible()),
+        GridItem(.flexible()),
     ]
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                LazyVGrid(columns: gridItems, spacing: 10) {
-                    ForEach(fileList, id: \.fid) { file in
-                        FileItemView(file: file) { selectedFile in
-                            handleFileSelection(selectedFile)
-                        }
-                    }
-                    
-                    if isLoading {
-                        ProgressView()
-                            .frame(maxWidth: .infinity)
-                            .padding()
+        ScrollView {
+            LazyVGrid(columns: gridItems, spacing: 10) {
+                ForEach(fileList, id: \.fid) { file in
+                    FileItemView(file: file) { selectedFile in
+                        handleFileSelection(selectedFile)
                     }
                 }
-                .padding()
+                
+                if isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
             }
-            .navigationTitle(cid == nil ? "根目录" : "文件夹")
-            .onAppear {
-                loadFiles()
-            }
-            .onDisappear {
-                // 重置状态
-                fileList = []
-                offset = 0
-                hasMore = true
+            .padding()
+        }
+        .navigationTitle(cid == nil ? "根目录" : "文件夹")
+        .onAppear {
+            loadFiles()
+        }
+        .onDisappear {
+            // 重置状态
+            fileList = []
+            offset = 0
+            hasMore = true
+        }
+        .fullScreenCover(isPresented: $showVideo) {
+            PlayView()
+        }
+        .navigationDestination(for: String.self) { cid in
+            if cid == "root" {
+                FileListView115(cid: nil)
+            } else {
+                FileListView115(cid: cid)
             }
         }
     }
@@ -69,7 +77,7 @@ struct FileListView115: View {
                     }
                     
                     // 更新分页状态
-                    if let count = data.count, let limit = data.limit {
+                    if let count = data.count{
                         hasMore = fileList.count < count
                     } else {
                         hasMore = !newData.isEmpty
@@ -92,15 +100,11 @@ struct FileListView115: View {
     
     private func handleFileSelection(_ file: FileItem) {
         // 判断是文件夹还是文件
-        if file.isp == 1 { // 文件夹
-            // 导航到下一个FileListView115页面
-            pushWindow(id: "fileList_\(UUID().uuidString)", content: {
-                FileListView115(cid: file.fid)
-                    .environment(appModel)
-            })
+        if file.fc == "0" { // 文件夹
+            
         } else { // 文件
             // 判断是否是视频文件
-            if isVideoFile(file) {
+            if file.isVideoFile {
                 playVideo(file)
             } else {
                 // 弹出toast：不支持该文件播放
@@ -113,11 +117,6 @@ struct FileListView115: View {
         }
     }
     
-    private func isVideoFile(_ file: FileItem) -> Bool {
-        guard let fileType = file.fta else { return false }
-        let videoTypes = ["mp4", "mov", "avi", "mkv", "wmv", "flv", "webm"]
-        return videoTypes.contains(fileType.lowercased())
-    }
     
     private func playVideo(_ file: FileItem) {
         guard let pickCode = file.pc else { return }
@@ -126,14 +125,11 @@ struct FileListView115: View {
             do {
                 let videoData = try await DataManager115.shared.getVideoPlayURL(pick_code: pickCode)
                 
-                if let videoUrlString = videoData.data?.videoUrl.first?.url,
+                if let videoUrlString = videoData.data?.videoUrl?.first?.url,
                    let url = URL(string: videoUrlString) {
                     await MainActor.run {
                         appModel.selectVideo(url: url)
-                        pushWindow(id: "playView", content: {
-                            PlayView()
-                                .environment(appModel)
-                        })
+                        showVideo = true
                     }
                 } else {
                     let toast = ToastValue(
@@ -159,25 +155,51 @@ struct FileItemView: View {
     let onTap: (FileItem) -> Void
     
     var body: some View {
-        Button(action: {
-            onTap(file)
-        }) {
-            VStack(spacing: 5) {
-                FileIconView(file: file)
-                    .font(.system(size: 40))
-                    .frame(width: 50, height: 50)
+        Group {
+            if file.fc == "0" {
+                NavigationLink(value: file.fid) {
+                    VStack(spacing: 5) {
+                        FileIconView(file: file)
+                            .font(.system(size: 40))
+                            .frame(width: 50, height: 50)
+                        
+                        Text(file.fn ?? "Unknown")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 80)
+                    .background(Color.clear)
+                    .contentShape(Rectangle())
+                    .padding()
+                }
+                .buttonStyle(.plain)
                 
-                Text(file.fn ?? "Unknown")
-                    .font(.caption)
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
+            }else{
+                Button(action: {
+                    onTap(file)
+                }) {
+                    VStack(spacing: 5) {
+                        FileIconView(file: file)
+                            .font(.system(size: 40))
+                            .frame(width: 50, height: 50)
+                        
+                        Text(file.fn ?? "Unknown")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 80)
+                    .background(Color.clear)
+                    .contentShape(Rectangle())
+                    .padding()
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-            .frame(maxWidth: .infinity, minHeight: 80)
-            .background(Color.clear)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(PlainButtonStyle())
+        
     }
 }
 
@@ -186,11 +208,12 @@ struct FileIconView: View {
     
     var body: some View {
         Group {
-            if file.isp == 1 { // 文件夹
+            if file.fc == "0" { // 文件夹
                 Image(systemName: "folder.fill")
-                    .foregroundColor(.blue)
+                        .foregroundColor(.blue)
+                
             } else { // 文件
-                if isVideoFile(file) {
+                if file.isVideoFile {
                     Image(systemName: "video.fill")
                         .foregroundColor(.red)
                 } else {
@@ -201,9 +224,5 @@ struct FileIconView: View {
         }
     }
     
-    private func isVideoFile(_ file: FileItem) -> Bool {
-        guard let fileType = file.fta else { return false }
-        let videoTypes = ["mp4", "mov", "avi", "mkv", "wmv", "flv", "webm"]
-        return videoTypes.contains(fileType.lowercased())
-    }
+    
 }

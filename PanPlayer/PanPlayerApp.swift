@@ -24,6 +24,7 @@ struct PanPlayerApp: App {
             PlayControlView()
                 .environment(appModel)
         }
+        .defaultSize(width: 600, height: 300)
 
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()

@@ -8,18 +8,25 @@ class DataManager115 {
     ///open/ufile/files
     /// 获取文件列表
     func getFileList(cid: String?,limit: Int = 20,offset: Int = 0) async throws -> FileData115 {
+        if TokenManager115.shared.isExpired {
+            try await TokenManager115.shared.refreshToken()
+        }
         //请求接口 https://passportapi.115.com/open/ufile/files
-        let url = URL(string: "https://passportapi.115.com/open/ufile/files")!
+        let url = URL(string: "https://proapi.115.com/open/ufile/files")!
         var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         components?.queryItems = [
             URLQueryItem(name: "cid", value: cid),
             URLQueryItem(name: "limit", value: "\(limit)"),
-            URLQueryItem(name: "offset", value: "\(offset)")
+            URLQueryItem(name: "offset", value: "\(offset)"),
+            URLQueryItem(name: "cur", value: "1"),
+            URLQueryItem(name: "show_dir", value: "1")
         ]
-        var headers = [
+        let headers = [
             "Authorization": "Bearer \(TokenManager115.shared.token ?? "")"
         ]
-        var request = URLRequest(url: components!.url!, method: .get)
+        var request = URLRequest(url: components!.url!)
+        request.allHTTPHeaderFields = headers
+        request.httpMethod = "GET"
         
         // 添加认证token
         if let token = TokenManager115.shared.token {
@@ -33,6 +40,10 @@ class DataManager115 {
         
         // 使用FileData115模型解析数据
         let decoder = JSONDecoder()
+        #if DEBUG
+        let logString = String(data: data, encoding: .utf8)
+        print("result -- \(logString ?? "")")
+        #endif
         let fileData = try decoder.decode(FileData115.self, from: data)
         return fileData
     }
@@ -42,25 +53,29 @@ class DataManager115 {
     func getVideoPlayURL(pick_code: String) async throws -> VideoData115 {
         //请求接口 https://passportapi.115.com/open/video/play
         //请求参数是form-data形式放到body里面
-        let url = URL(string: "https://passportapi.115.com/open/video/play")!
+        if TokenManager115.shared.isExpired {
+            try await TokenManager115.shared.refreshToken()
+        }
+        let url = URL(string: "https://proapi.115.com/open/video/play")!
         var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        var headers = [
+        components?.queryItems = [
+            URLQueryItem(name: "pick_code", value: pick_code)
+        ]
+        let headers = [
             "Authorization": "Bearer \(TokenManager115.shared.token ?? "")"
         ]
-        var request = URLRequest(url: components!.url!, method: .post)
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(TokenManager115.shared.token ?? "")", forHTTPHeaderField: "Authorization")
-        request.httpBody = "pick_code=\(pick_code)".data(using: .utf8)
-        
-        // 添加认证token
-        if let token = TokenManager115.shared.token {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        }
+        var request = URLRequest(url: components!.url!)
+        request.allHTTPHeaderFields = headers
+        request.httpMethod = "GET"
         
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw TokenManagerError.networkError
         }
+        #if DEBUG
+        let logString = String(data: data, encoding: .utf8)
+        print("video result -- \(logString ?? "")")
+        #endif
         // 使用VideoData115模型解析数据
         let decoder = JSONDecoder()
         let videoData = try decoder.decode(VideoData115.self, from: data)

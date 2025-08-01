@@ -15,6 +15,7 @@ struct WebViewContainer: View {
             .onAppear {
                 ConfigManager.shared.onUrlDetected = { params in
                     onUrlDetected(params)
+                    
                 }
                 page.load(url)
             }

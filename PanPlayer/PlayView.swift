@@ -28,6 +28,8 @@ struct PlayView: View {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.pushWindow) private var pushWindow
+    @Environment(\.dismiss) private var dimiss
     
     
     var body: some View {
@@ -59,7 +61,10 @@ struct PlayView: View {
                                 // On unknown response, assume space did not open.
                                 appModel.immersiveSpaceState = .closed
                         }
-                        dismissWindow(id: "mainWindow")
+                        dimiss()
+                        dismissWindow(id:"mainWindow")
+                        pushWindow(id: "playControlWindow")
+                        appModel.controlWindowIsShow = true
 
                     case .inTransition:
                         // This case should not ever happen because button is disabled for this case.

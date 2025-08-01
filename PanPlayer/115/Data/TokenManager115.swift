@@ -36,7 +36,8 @@ class TokenManager115 {
     var isExpired: Bool {
         guard let expiresIn, let lastUpdateTime else { return true }
         // 过期时间小于当前时间 秒
-        return Date().timeIntervalSince(lastUpdateTime) >= Double(expiresIn)
+        let result = Date().timeIntervalSince(lastUpdateTime)
+        return result >= Double(expiresIn)
     }
 
     var requestWebURL: URL {
@@ -64,14 +65,16 @@ class TokenManager115 {
     private init() {
         let tokenJson = UserDefaults.standard.string(forKey: TokenManager115.tokenKey)
         guard let tokenData = tokenJson?.data(using: .utf8) else { return }
+        let jsonString = String(data: tokenData, encoding: .utf8)
+        print("json -- \(jsonString ?? "")")
         guard let tokenJson = try? JSONSerialization.jsonObject(with: tokenData, options: []) as? [String: Any]
               else { return }
         token = tokenJson["access_token"] as? String
         refreshToken = tokenJson["refresh_token"] as? String
         expiresIn = tokenJson["expires_in"] as? Int
-        var lastUpdateTime = UserDefaults.standard.double(forKey: "115lastUpdateTime") as? TimeInterval
-        if let lastUpdateTime {
-            self.lastUpdateTime = Date(timeIntervalSince1970: lastUpdateTime)
+        let lastTimeSaved = UserDefaults.standard.double(forKey: "115lastUpdateTime")
+        if lastTimeSaved != 0 {
+            lastUpdateTime = Date(timeIntervalSince1970: lastTimeSaved)
         }
     }
 
@@ -84,9 +87,14 @@ class TokenManager115 {
             throw TokenManagerError.invalidToken
         }
         
-        guard let accessToken = tokenJson["access_token"] as? String,
-              let refreshToken = tokenJson["refresh_token"] as? String,
-              let expiresIn = tokenJson["expires_in"] as? Int else {
+        print("get token \(tokenJson)")
+        guard let jsonData = tokenJson["data"] as? [String:Any] else {
+            throw TokenManagerError.invalidToken
+        }
+        
+        guard let accessToken = jsonData["access_token"] as? String,
+              let refreshToken = jsonData["refresh_token"] as? String,
+              let expiresIn = jsonData["expires_in"] as? Int else {
             throw TokenManagerError.invalidToken
         }
         
@@ -110,8 +118,9 @@ class TokenManager115 {
         UserDefaults.standard.set(lastUpdateTime?.timeIntervalSince1970, forKey: "115lastUpdateTime")
     }
 
-    func getToken(code: String) async throws {
+    func getToken(code: String,stateString:String) async throws {
         //请求接口 https://vocalremover.us/api/115/authCodeToToken/{code}?state=\(state)
+        state = stateString
         guard let state else {
             throw TokenManagerError.invalidState
         }
@@ -125,7 +134,7 @@ class TokenManager115 {
         guard let url = components?.url else {
             throw TokenManagerError.invalidToken
         }
-        
+        print("token request url = \(url)")
         let request = URLRequest(url: url)
         let (data, response) = try await URLSession.shared.data(for: request)
         try update(data: data, response: response)
@@ -145,11 +154,21 @@ class TokenManager115 {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        
-        var components = URLComponents()
-        components.queryItems = [URLQueryItem(name: "refresh_token", value: refreshToken)]
-        request.httpBody = components.query?.data(using: .utf8)
-        
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+            var body = Data()
+
+        // Add text field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"refresh_token\"\r\n".data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        body.append(refreshToken.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        // Final closing boundary
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+
         let (data, response) = try await URLSession.shared.data(for: request)
         try update(data: data, response: response)
     }

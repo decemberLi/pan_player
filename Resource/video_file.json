@@ -1,0 +1,39 @@
+{
+  "state": true,
+  "message": "",
+  "code": 0,
+  "data": {
+    "file_id": "3213558165136211674",
+    "parent_id": "3104199170901645244",
+    "file_name": "hhd800.com@13dsvr01737.part3_8K.mp4",
+    "file_size": "3111448465",
+    "file_sha1": "E04EDE7A77E49094A0B02A4B39CBF137A9CE1342",
+    "file_type": "196",
+    "is_private": "0",
+    "play_long": "1292",
+    "user_def": 3,
+    "user_rotate": 0,
+    "user_turn": 0,
+    "multitrack_list": [],
+    "definition_list": { "4": "1080P", "5": "4K" },
+    "definition_list_new": { "4": "1080P", "5": "4K" },
+    "video_url": [
+      {
+        "url": "http://videoplay.115.com/m3u8/azwougzzfttb5h4qg?filesha1=E04EDE7A77E49094A0B02A4B39CBF137A9CE1342&userid=26904230&rsa=bf871e3881ad5d243d1e5b0448217721&definition=4&prefix=ANDROID&time=1754069230&pickcode=azwougzzfttb5h4qg&play_from=3",
+        "height": 960,
+        "width": 1920,
+        "definition": 4,
+        "title": "1080P",
+        "definition_n": 4
+      },
+      {
+        "url": "http://videoplay.115.com/m3u8/azwougzzfttb5h4qg?filesha1=E04EDE7A77E49094A0B02A4B39CBF137A9CE1342&userid=26904230&rsa=79622021e88d4e7b466c4a4fdd649d3f&definition=5&prefix=ANDROID&time=1754069230&pickcode=azwougzzfttb5h4qg&play_from=3",
+        "height": 1920,
+        "width": 3840,
+        "definition": 5,
+        "title": "4K",
+        "definition_n": 5
+      }
+    ]
+  }
+}
