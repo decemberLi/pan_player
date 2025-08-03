@@ -42,21 +42,7 @@ struct ImmersiveView: View {
             appModel.immersiveSpaceState = .closed
             appModel.player?.pause()
         }
-        .gesture(
-          TapGesture()
-            .targetedToAnyEntity()
-            .onEnded { value in
-                Task {
-                    if appModel.controlWindowIsShow {
-                        dismissWindow(id: WindowIDs.playControlWindow)
-                        appModel.controlWindowIsShow = false
-                    }else{
-                        openWindow(id: WindowIDs.playControlWindow)
-                        appModel.controlWindowIsShow = true
-                    }
-                }
-            }
-        )
+       
         
     }
     
@@ -70,17 +56,12 @@ struct ImmersiveView: View {
         // 创建视频实体
         let videoEntity = ModelEntity(mesh: hemisphereMesh, materials: [videoMaterial])
         
-        videoEntity.components.set(InputTargetComponent())
+   
    
         
         // 旋转半球让画面面向用户前方（绕Y轴旋转180度）
         videoEntity.transform.rotation = simd_quatf(angle: Float.pi, axis: SIMD3<Float>(0, 1, 0))
         videoEntity.position = .init(x: 0, y: 0, z: 0)
-        
-        
-
-        // 手动指定形状（推荐复杂模型）
-        videoEntity.collision = CollisionComponent(shapes: [.generateSphere(radius: 0.2)])
         
         // 添加到场景
         content.add(videoEntity)
