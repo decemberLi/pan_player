@@ -9,7 +9,7 @@ import SwiftUI
 struct PlayControlView : View {
     @Environment(AppModel.self) var appModel
     @Environment(\.dismissWindow) private var dissmissWindow
-    @Environment(\.pushWindow) private var pushWindow
+    @Environment(\.openWindow) private var openWidnow
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     
     private func formatTime(_ time: Double) -> String {
@@ -69,9 +69,10 @@ struct PlayControlView : View {
                     self.appModel.clearVideo()
                     self.appModel.controlWindowIsShow = false
                     Task {
+                        openWidnow(id: WindowIDs.mainWindow)
+                        dissmissWindow(id: WindowIDs.playControlWindow)
                         await dismissImmersiveSpace()
-                        dissmissWindow()
-                        pushWindow(id: "mainWindow")
+                        
                     }
                     
                 }) {

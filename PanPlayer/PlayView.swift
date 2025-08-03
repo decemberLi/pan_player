@@ -28,7 +28,7 @@ struct PlayView: View {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissWindow) private var dismissWindow
-    @Environment(\.pushWindow) private var pushWindow
+    @Environment(\.openWindow) private var openWindow
     @Environment(\.dismiss) private var dimiss
     
     
@@ -62,8 +62,8 @@ struct PlayView: View {
                                 appModel.immersiveSpaceState = .closed
                         }
                         dimiss()
-                        dismissWindow(id:"mainWindow")
-                        pushWindow(id: "playControlWindow")
+                        dismissWindow(id: WindowIDs.mainWindow)
+                        openWindow(id: WindowIDs.playControlWindow)
                         appModel.controlWindowIsShow = true
 
                     case .inTransition:

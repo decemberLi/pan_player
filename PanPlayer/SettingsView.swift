@@ -5,7 +5,7 @@ struct SettingsView: View {
     @Environment(\.presentToast) private var presentToast
     
     var body: some View {
-        var jsonString = UserDefaults.standard.string(forKey: "115token")
+        let jsonString = UserDefaults.standard.string(forKey: "115token")
         VStack {
             Text("设置")
                 .font(.title)

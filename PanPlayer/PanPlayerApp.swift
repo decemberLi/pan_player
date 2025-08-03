@@ -14,13 +14,13 @@ struct PanPlayerApp: App {
     @State private var appModel = AppModel()
 
     var body: some Scene {
-        WindowGroup(id:"mainWindow") {
+        WindowGroup(id: WindowIDs.mainWindow) {
             MainView()
                 .environment(appModel)
                 .installToast()
         }
         
-        WindowGroup(id:"playControlWindow"){
+        WindowGroup(id: WindowIDs.playControlWindow) {
             PlayControlView()
                 .environment(appModel)
         }
