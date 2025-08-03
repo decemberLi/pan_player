@@ -48,7 +48,7 @@ struct ImmersiveView: View {
     
     private func setup180VRVideoPlayer(player: AVPlayer, content: RealityViewContent) {
         // 创建180度VR视频播放器 - 使用半球形状
-        let hemisphereMesh = createHemisphereMesh(radius: 5)
+        let hemisphereMesh = createHemisphereMesh(radius: 1.5)
         
         // 创建视频材质
         let videoMaterial = VideoMaterial(avPlayer: player)
@@ -61,7 +61,7 @@ struct ImmersiveView: View {
         
         // 旋转半球让画面面向用户前方（绕Y轴旋转180度）
         videoEntity.transform.rotation = simd_quatf(angle: Float.pi, axis: SIMD3<Float>(0, 1, 0))
-        videoEntity.position = .init(x: 0, y: 0, z: 0)
+        videoEntity.position = .init(x: 0, y: 1, z: 0)
         
         // 添加到场景
         content.add(videoEntity)

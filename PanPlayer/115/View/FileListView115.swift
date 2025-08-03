@@ -12,6 +12,9 @@ struct FileListView115: View {
     @State private var offset = 0
     @State private var hasMore = true
     @State private var showVideo = false
+    @State private var showVideoSelection = false
+    @State private var availableVideos: [VideoURL115] = []
+    @State private var selectedVideoURL: URL?
     
     private let gridItems = [
         GridItem(.flexible()),
@@ -56,6 +59,21 @@ struct FileListView115: View {
             } else {
                 FileListView115(cid: cid)
             }
+        }
+        .actionSheet(isPresented: $showVideoSelection) {
+            ActionSheet(
+                title: Text("选择视频质量"),
+                message: Text("请选择要播放的视频质量"),
+                buttons: availableVideos.map { video in
+                    .default(Text("\(video.title) (\(video.width)x\(video.height))")) {
+                        if let url = URL(string: video.url) {
+                            selectedVideoURL = url
+                            appModel.selectVideo(url: url)
+                            showVideo = true
+                        }
+                    }
+                } + [.cancel()]
+            )
         }
     }
     
@@ -125,11 +143,10 @@ struct FileListView115: View {
             do {
                 let videoData = try await DataManager115.shared.getVideoPlayURL(pick_code: pickCode)
                 
-                if let videoUrlString = videoData.data?.videoUrl?.first?.url,
-                   let url = URL(string: videoUrlString) {
+                if let videoUrls = videoData.data?.videoUrl, !videoUrls.isEmpty {
                     await MainActor.run {
-                        appModel.selectVideo(url: url)
-                        showVideo = true
+                        availableVideos = videoUrls
+                        showVideoSelection = true
                     }
                 } else {
                     let toast = ToastValue(
