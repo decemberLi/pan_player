@@ -17,13 +17,21 @@ struct ImmersiveView: View {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     
     @State private var videoEntity: ModelEntity?
-    @State private var playerLayer: AVPlayerLayer?
+
+    private let headTracker = HeadTracker()
     
     var body: some View {
         RealityView { content,attachments in
             // 创建180度VR视频播放器
             if let player = appModel.player {
                 setup180VRVideoPlayer(player: player, content: content)
+            }
+            headTracker.start(content: content) { _ in
+                guard let headTransform = headTracker.transform else {
+                    return
+                }
+                let headPosition = simd_make_float3(headTransform.columns.3)
+                self.videoEntity?.position = headPosition
             }
         } update: { content, attachments in
             
@@ -51,6 +59,7 @@ struct ImmersiveView: View {
             // 设置VR空间状态为关闭
             appModel.immersiveSpaceState = .closed
             appModel.player?.pause()
+            headTracker.stop()
         }
        
         

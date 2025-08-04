@@ -7,7 +7,7 @@ class DataManager115 {
 
     ///open/ufile/files
     /// 获取文件列表
-    func getFileList(cid: String?,limit: Int = 20,offset: Int = 0) async throws -> FileData115 {
+    func getFileList(cid: String?,limit: Int = 100,offset: Int = 0) async throws -> FileData115 {
         if TokenManager115.shared.isExpired {
             try await TokenManager115.shared.refreshToken()
         }
