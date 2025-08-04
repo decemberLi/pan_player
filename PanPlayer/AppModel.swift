@@ -20,6 +20,15 @@ class AppModel {
     }
     var immersiveSpaceState = ImmersiveSpaceState.closed
     
+    // 视频播放视图模型
+    var videoPlaybackViewModel = VideoPlaybackViewModel()
+    
+    init() {
+        Task {
+          await  videoPlaybackViewModel.loadShaderMaterial()
+        }
+    }
+    
     // 视频相关状态
     var selectedVideoURL: URL?
     var isVideoPlaying: Bool = false
@@ -46,7 +55,8 @@ class AppModel {
                 print("获取视频时长失败: \(error)")
             }
         }
-        
+        videoPlaybackViewModel.player = player
+        videoPlaybackViewModel.update()
         // 监听播放时间
         setupTimeObserver()
     }

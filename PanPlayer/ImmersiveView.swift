@@ -30,7 +30,11 @@ struct ImmersiveView: View {
             // 设置VR空间状态为打开
             appModel.immersiveSpaceState = .open
             Task {
-              try? await  Task.sleep(nanoseconds: 1000000000)//1秒
+                // 加载surfaceMaterial
+                await appModel.videoPlaybackViewModel.loadShaderMaterial()
+                
+                // 等待1秒
+                try? await Task.sleep(nanoseconds: 1000000000)
                 
                 // 开始播放
                 appModel.player?.play()
@@ -50,11 +54,8 @@ struct ImmersiveView: View {
         // 创建180度VR视频播放器 - 使用半球形状
         let hemisphereMesh = createHemisphereMesh(radius: 1.5)
         
-        // 创建视频材质
-        let videoMaterial = VideoMaterial(avPlayer: player)
-        
         // 创建视频实体
-        let videoEntity = ModelEntity(mesh: hemisphereMesh, materials: [videoMaterial])
+        let videoEntity = ModelEntity(mesh: hemisphereMesh, materials: [appModel.videoPlaybackViewModel.surfaceMaterial!])
         
    
    
