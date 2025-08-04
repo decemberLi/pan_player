@@ -104,8 +104,7 @@ struct ImmersiveView: View {
                 let normal = normalize(-position)
                 normals.append(normal)
                 
-                // 纹理坐标（只使用左半部分纹理，适配side-by-side格式的180度VR视频）
-                let u = Float(segment) / Float(segments) * 0.5  // 只使用左半部分
+                let u = Float(segment) / Float(segments) 
                 let v = 1.0 - Float(ring) / Float(rings)
                 textureCoordinates.append(SIMD2<Float>(u, v))
             }
