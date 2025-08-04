@@ -44,7 +44,7 @@ struct PlayView: View {
                         // Only set .closed in ImmersiveView.onDisappear().
 
                     case .closed:
-                        
+                        dimiss()
                         appModel.immersiveSpaceState = .inTransition
                         switch await openImmersiveSpace(id: appModel.immersiveSpaceID) {
                             case .opened:
@@ -61,7 +61,6 @@ struct PlayView: View {
                                 // On unknown response, assume space did not open.
                                 appModel.immersiveSpaceState = .closed
                         }
-                        dimiss()
                         dismissWindow(id: WindowIDs.mainWindow)
                         openWindow(id: WindowIDs.playControlWindow)
                         appModel.controlWindowIsShow = true
