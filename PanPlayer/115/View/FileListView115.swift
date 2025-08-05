@@ -44,6 +44,9 @@ struct FileListView115: View {
         }
         .navigationTitle(cid == nil ? "根目录" : "文件夹")
         .onAppear {
+            guard fileList.isEmpty else{
+                return
+            }
             loadFiles()
         }
         .onDisappear {
