@@ -10,7 +10,7 @@ struct FileListView115: View {
     @State private var fileList: [FileItem] = []
     @State private var isLoading = false
     @State private var offset = 0
-    @State private var hasMore = true
+    @State private var hasMore = false
     @State private var showVideo = false
     @State private var showVideoSelection = false
     @State private var availableVideos: [VideoURL115] = []
@@ -31,14 +31,16 @@ struct FileListView115: View {
                         handleFileSelection(selectedFile)
                     }
                 }
-                
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                }
             }
             .padding()
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding()
+            }
+        }
+        .refreshable {
+            loadFiles()
         }
         .navigationTitle(cid == nil ? "根目录" : "文件夹")
         .onAppear {
@@ -78,14 +80,14 @@ struct FileListView115: View {
     }
     
     private func loadFiles() {
-        guard !isLoading && hasMore else { return }
+        guard !isLoading else { return }
         
         Task {
             isLoading = true
             defer { isLoading = false }
             
             do {
-                let data = try await DataManager115.shared.getFileList(cid: cid, limit: 20, offset: offset)
+                let data = try await DataManager115.shared.getFileList(cid: cid, limit: 100, offset: offset)
                 
                 if let newData = data.data {
                     if offset == 0 {

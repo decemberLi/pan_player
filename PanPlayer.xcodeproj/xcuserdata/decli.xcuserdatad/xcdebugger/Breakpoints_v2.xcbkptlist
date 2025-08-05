@@ -24,16 +24,36 @@
          BreakpointExtensionID = "Xcode.Breakpoint.SwiftErrorBreakpoint">
          <BreakpointContent
             uuid = "0E82063A-7B03-4B56-8224-CF9AFA1F6954"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No">
+            <Locations>
+               <Location
+                  uuid = "0E82063A-7B03-4B56-8224-CF9AFA1F6954 - f030214c10979e26"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "swift_willThrow"
+                  moduleName = "libswiftCore.dylib"
+                  usesParentBreakpointCondition = "Yes">
+               </Location>
+               <Location
+                  uuid = "0E82063A-7B03-4B56-8224-CF9AFA1F6954 - 189b4a6baed95649"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "swift_willThrowTypedImpl"
+                  moduleName = "libswiftCore.dylib"
+                  usesParentBreakpointCondition = "Yes">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.ExceptionBreakpoint">
          <BreakpointContent
             uuid = "B6EB2212-D7A3-4A0E-B870-0542B1EB06EC"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             breakpointStackSelectionBehavior = "1"
@@ -45,13 +65,29 @@
          BreakpointExtensionID = "Xcode.Breakpoint.SymbolicBreakpoint">
          <BreakpointContent
             uuid = "BB8948D2-66E7-4182-8537-F3639540AA0E"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             symbolName = ""
             moduleName = "">
             <Locations>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C588F2E6-23B6-4243-B405-0E42A8171B19"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PanPlayer/115/View/FileListView115.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "106"
+            endingLineNumber = "106"
+            landmarkName = "loadFiles()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
