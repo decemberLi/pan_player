@@ -24,7 +24,7 @@ final class VideoPlaybackViewModel {
     private(set) var surfaceMaterial: ShaderGraphMaterial?
     private var textureResource: TextureResource?
 
-    var player: AVPlayer?
+    weak var player: AVPlayer?
     private var statusObservation: NSKeyValueObservation?
     private var playerVideoOutput: AVPlayerItemVideoOutput?
     private var displayLink: DisplayLink?

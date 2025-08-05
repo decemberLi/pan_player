@@ -8,4 +8,5 @@
 class WindowIDs {
     static let mainWindow = "mainWindow"
     static let playControlWindow = "playControlWindow"
+    static  let immersiveSpaceID = "ImmersiveSpace"
 }

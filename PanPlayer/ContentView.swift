@@ -106,7 +106,9 @@ struct ContentView: View {
         ) { result in
             switch result {
             case .success(let urls):
+                
                 if let url = urls.first {
+                   _ = url.startAccessingSecurityScopedResource()
                     appModel.selectVideo(url: url)
                     showPlayer = true
                 }

@@ -16,56 +16,93 @@ struct ImmersiveView: View {
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     
-    @State private var videoEntity: ModelEntity?
+    @State private var rootEntity: Entity?
 
     private let headTracker = HeadTracker()
     
     var body: some View {
         RealityView { content,attachments in
+            let root = Entity()
+            root.name = "root"
+            root.position = [0.0,1.2,0.0]
+            content.add(root)
+            rootEntity = root
             // 创建180度VR视频播放器
-            if let player = appModel.player {
-                setup180VRVideoPlayer(player: player, content: content)
-            }
-            headTracker.start(content: content) { _ in
-                guard let headTransform = headTracker.transform else {
-                    return
-                }
-                let headPosition = simd_make_float3(headTransform.columns.3)
-                self.videoEntity?.position = headPosition
-            }
-        } update: { content, attachments in
+            let videoPlayer = appModel.player
+            let player = videoPlayer.player
+            let videoEntity = setup180VRVideoPlayer(player: player)
+            root.addChild(videoEntity)
             
+            
+            // Setup ControlPanel as a floating window within the immersive scene
+            if let controlPanel = attachments.entity(for: "ControlPanel") {
+                let config = Config.shared
+                controlPanel.name = "ControlPanel"
+                controlPanel.position = [0, config.controlPanelVerticalOffset, -config.controlPanelHorizontalOffset]
+                controlPanel.orientation = simd_quatf(angle: -config.controlPanelTilt * .pi/180, axis: [1, 0, 0])
+                root.addChild(controlPanel)
+            }
+            
+            let collisionShape: ShapeResource =
+                .generateBox(width: 100, height: 100, depth: 1)
+                .offsetBy(translation: [0.0, 0.0, -5.0])
+            
+            let tapEntity = Config.shared.tapCatcherShowDebug ?
+            ModelEntity(
+                mesh: MeshResource(shape: collisionShape),
+                materials: [UnlitMaterial(color: .red)]
+            ) : Entity()
+            
+            tapEntity.name = "TapCatcher"
+            tapEntity.components.set(CollisionComponent(shapes: [collisionShape], mode: .trigger, filter: .default))
+            tapEntity.components.set(InputTargetComponent())
+            root.addChild(tapEntity)
+            
+        } update: { content, attachments in
+            let videoPlayer = appModel.player
+            if let progressView = attachments.entity(for: "ProgressView") {
+                progressView.isEnabled = videoPlayer.buffering || videoPlayer.loading
+            }
         } placeholder: {
             ProgressView()
         } attachments: {
             
+            Attachment(id: "ControlPanel") {
+                ControlPanel( )
+            }
+            Attachment(id: "ProgressView") {
+                ProgressView()
+            }
         }
         .onAppear {
-            // 设置VR空间状态为打开
-            appModel.immersiveSpaceState = .open
             Task {
                 // 加载surfaceMaterial
-                await appModel.videoPlaybackViewModel.loadShaderMaterial()
+//                await appModel.videoPlaybackViewModel.loadShaderMaterial()
                 
                 // 等待1秒
                 try? await Task.sleep(nanoseconds: 1000000000)
                 
                 // 开始播放
-                appModel.player?.play()
-                appModel.isVideoPlaying = true
+                appModel.playVideo()
             }
         }
         .onDisappear {
             // 设置VR空间状态为关闭
-            appModel.immersiveSpaceState = .closed
-            appModel.player?.pause()
+            appModel.player.stop()
             headTracker.stop()
         }
+        .gesture(TapGesture()
+            .targetedToAnyEntity()
+            .onEnded { event in
+                let videoPlayer = appModel.player
+                videoPlayer.toggleControlPanel()
+            }
+        )
        
         
     }
     
-    private func setup180VRVideoPlayer(player: AVPlayer, content: RealityViewContent) {
+    private func setup180VRVideoPlayer(player: AVPlayer) -> Entity {
         // 创建180度VR视频播放器 - 使用半球形状
 //        let hemisphereMesh = createHemisphereMesh(radius: 1.5)
         let (hemisphereMesh,transform) = VideoTools.makeVideoMesh()
@@ -75,12 +112,7 @@ struct ImmersiveView: View {
         
         videoEntity.transform = transform
         
-        // 添加到场景
-        content.add(videoEntity)
-        
-        // 保存引用
-        self.videoEntity = videoEntity
-        
+        return videoEntity
     }
     
     // 创建半球网格（只有前180度）

@@ -19,7 +19,7 @@ struct AVPlayerViewControllerWrapper: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
-//        uiViewController.player = player
+        //        uiViewController.player = player
     }
 }
 
@@ -33,45 +33,13 @@ struct PlayView: View {
     
     
     var body: some View {
-        AVPlayerViewControllerWrapper(player: appModel.player,showVR: {
+        AVPlayerViewControllerWrapper(player: appModel.player.player,showVR: {
             Task { @MainActor in
-                switch appModel.immersiveSpaceState {
-                    case .open:
-                        appModel.immersiveSpaceState = .inTransition
-                        await dismissImmersiveSpace()
-                        // Don't set immersiveSpaceState to .closed because there
-                        // are multiple paths to ImmersiveView.onDisappear().
-                        // Only set .closed in ImmersiveView.onDisappear().
-
-                    case .closed:
-                        
-                        appModel.immersiveSpaceState = .inTransition
-                        switch await openImmersiveSpace(id: appModel.immersiveSpaceID) {
-                            case .opened:
-                                // Don't set immersiveSpaceState to .open because there
-                                // may be multiple paths to ImmersiveView.onAppear().
-                                // Only set .open in ImmersiveView.onAppear().
-                                break
-
-                            case .userCancelled, .error:
-                                // On error, we need to mark the immersive space
-                                // as closed because it failed to open.
-                                fallthrough
-                            @unknown default:
-                                // On unknown response, assume space did not open.
-                                appModel.immersiveSpaceState = .closed
-                        }
-                        dimiss()
-                        dismissWindow(id: WindowIDs.mainWindow)
-                        openWindow(id: WindowIDs.playControlWindow)
-                        appModel.controlWindowIsShow = true
-
-                    case .inTransition:
-                        // This case should not ever happen because button is disabled for this case.
-                        break
-                }
+                await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
+                dimiss()
+                dismissWindow(id: WindowIDs.mainWindow)
             }
         })
-            .ignoresSafeArea()
+        .ignoresSafeArea()
     }
 }
