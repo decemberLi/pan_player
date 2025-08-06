@@ -41,7 +41,7 @@ struct PlayView: View {
             }
         })
         .onDisappear {
-            appModel.stopVideo()
+            appModel.pauseVideo()
         }
         .ignoresSafeArea()
     }
