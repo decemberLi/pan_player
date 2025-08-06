@@ -3,28 +3,59 @@ import Toasts
 
 struct SettingsView: View {
     @Environment(\.presentToast) private var presentToast
+    @State private var showingClearAlert = false
     
     var body: some View {
         let jsonString = UserDefaults.standard.string(forKey: "115token")
-        VStack {
-            Text("设置")
-                .font(.title)
-                .padding()
-            
-            #if DEBUG
-            Text("115Token: \(jsonString ?? "未设置")")
-                .padding()
-            .onTapGesture {
-                UIPasteboard.general.string = jsonString
-                let toast = ToastValue(
-                    icon: Image(systemName: "checkmark"),
-                    message: "已复制到剪贴板"
-                )
-                presentToast(toast)
+        
+        NavigationView {
+            List {
+                #if DEBUG
+                Section("调试信息") {
+                    HStack {
+                        Text("115Token")
+                        Spacer()
+                        Text(jsonString ?? "未设置")
+                            .foregroundColor(.secondary)
+                    }
+                    .onTapGesture {
+                        UIPasteboard.general.string = jsonString
+                        let toast = ToastValue(
+                            icon: Image(systemName: "checkmark"),
+                            message: "已复制到剪贴板"
+                        )
+                        presentToast(toast)
+                    }
+                }
+                #endif
+                
+                Section("账户管理") {
+                    Button(action: {
+                        showingClearAlert = true
+                    }) {
+                        HStack {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                            Text("清除115登录信息")
+                                .foregroundColor(.red)
+                        }
+                    }
+                }
+                
+                Section("关于") {
+                    HStack {
+                        Text("版本")
+                        Spacer()
+                        Text("V1.0.0")
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
-            #endif
-            Text("清除115登录信息")
-                .onTapGesture {
+            .navigationTitle("设置")
+            .navigationBarTitleDisplayMode(.large)
+            .alert("确认清除", isPresented: $showingClearAlert) {
+                Button("取消", role: .cancel) { }
+                Button("清除", role: .destructive) {
                     TokenManager115.shared.clear()
                     let toast = ToastValue(
                         icon: Image(systemName: "checkmark"),
@@ -32,7 +63,9 @@ struct SettingsView: View {
                     )
                     presentToast(toast)
                 }
-            Text("V1.0.0")
+            } message: {
+                Text("确定要清除115登录信息吗？此操作不可撤销。")
+            }
         }
     }
 }
