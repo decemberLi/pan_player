@@ -40,6 +40,9 @@ struct PlayView: View {
                 dismissWindow(id: WindowIDs.mainWindow)
             }
         })
+        .onDisappear {
+            appModel.stopVideo()
+        }
         .ignoresSafeArea()
     }
 }

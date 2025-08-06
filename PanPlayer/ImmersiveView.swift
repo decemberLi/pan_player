@@ -68,7 +68,12 @@ struct ImmersiveView: View {
         } attachments: {
             
             Attachment(id: "ControlPanel") {
-                ControlPanel( )
+                ControlPanel(closeAction: {
+                    Task {
+                        await dismissImmersiveSpace()
+                         openWindow(id: WindowIDs.mainWindow)
+                    }
+                } )
             }
             Attachment(id: "ProgressView") {
                 ProgressView()

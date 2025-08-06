@@ -172,5 +172,13 @@ class TokenManager115 {
         let (data, response) = try await URLSession.shared.data(for: request)
         try update(data: data, response: response)
     }
+    
+    func clear(){
+        token = nil
+        refreshToken = nil
+        expiresIn = nil
+        lastUpdateTime = nil
+        state = nil
+    }
 }
 

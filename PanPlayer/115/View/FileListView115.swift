@@ -6,7 +6,7 @@ struct FileListView115: View {
     @Environment(\.presentToast) var presentToast
     @Environment(AppModel.self) private var appModel
     
-    let cid: String?
+    let currentDir: FileItem?
     @State private var fileList: [FileItem] = []
     @State private var isLoading = false
     @State private var offset = 0
@@ -24,6 +24,7 @@ struct FileListView115: View {
     ]
     
     var body: some View {
+        let title = currentDir?.fn ?? "115"
         ScrollView {
             LazyVGrid(columns: gridItems, spacing: 10) {
                 ForEach(fileList, id: \.fid) { file in
@@ -33,36 +34,39 @@ struct FileListView115: View {
                 }
             }
             .padding()
-            if isLoading {
+            if hasMore {
                 ProgressView()
                     .frame(maxWidth: .infinity)
                     .padding()
+                    .onAppear {
+                        Task {
+                           await loadFiles()
+                        }
+                    }
             }
         }
         .refreshable {
-            loadFiles()
+           await loadFiles()
         }
-        .navigationTitle(cid == nil ? "根目录" : "文件夹")
+        .navigationTitle(title)
         .onAppear {
             guard fileList.isEmpty else{
                 return
             }
-            loadFiles()
-        }
-        .onDisappear {
-            // 重置状态
-            fileList = []
-            offset = 0
-            hasMore = true
+            Task {
+              await  loadFiles()
+            }
+            
         }
         .fullScreenCover(isPresented: $showVideo) {
             PlayView()
         }
-        .navigationDestination(for: String.self) { cid in
+        .navigationDestination(for: FileItem.self) { dir in
+            let cid = dir.fid
             if cid == "root" {
-                FileListView115(cid: nil)
+                FileListView115(currentDir: nil)
             } else {
-                FileListView115(cid: cid)
+                FileListView115(currentDir: dir)
             }
         }
         .actionSheet(isPresented: $showVideoSelection) {
@@ -82,42 +86,40 @@ struct FileListView115: View {
         }
     }
     
-    private func loadFiles() {
+    private func loadFiles() async{
         guard !isLoading else { return }
+        isLoading = true
+        defer { isLoading = false }
         
-        Task {
-            isLoading = true
-            defer { isLoading = false }
+        do {
+            let cid = currentDir?.fid
+            let data = try await DataManager115.shared.getFileList(cid: cid, limit: 100, offset: offset)
             
-            do {
-                let data = try await DataManager115.shared.getFileList(cid: cid, limit: 100, offset: offset)
-                
-                if let newData = data.data {
-                    if offset == 0 {
-                        fileList = newData
-                    } else {
-                        fileList.append(contentsOf: newData)
-                    }
-                    
-                    // 更新分页状态
-                    if let count = data.count{
-                        hasMore = fileList.count < count
-                    } else {
-                        hasMore = !newData.isEmpty
-                    }
-                    
-                    offset += newData.count
+            if let newData = data.data {
+                if offset == 0 {
+                    fileList = newData
                 } else {
-                    hasMore = false
+                    fileList.append(contentsOf: newData)
                 }
-            } catch {
-                print("加载文件列表失败: \(error)")
-                let toast = ToastValue(
-                    icon: Image(systemName: "exclamationmark.triangle"),
-                    message: "加载文件列表失败"
-                )
-                presentToast(toast)
+                
+                // 更新分页状态
+                if let count = data.count{
+                    hasMore = fileList.count < count
+                } else {
+                    hasMore = !newData.isEmpty
+                }
+                
+                offset += newData.count
+            } else {
+                hasMore = false
             }
+        } catch {
+            print("加载文件列表失败: \(error)")
+            let toast = ToastValue(
+                icon: Image(systemName: "exclamationmark.triangle"),
+                message: "加载文件列表失败"
+            )
+            presentToast(toast)
         }
     }
     
@@ -179,7 +181,7 @@ struct FileItemView: View {
     var body: some View {
         Group {
             if file.fc == "0" {
-                NavigationLink(value: file.fid) {
+                NavigationLink(value: file) {
                     VStack(spacing: 5) {
                         FileIconView(file: file)
                             .font(.system(size: 40))

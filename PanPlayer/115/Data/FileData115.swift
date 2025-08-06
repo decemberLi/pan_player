@@ -69,7 +69,11 @@ struct FileData115: Codable {
 }
 
 // MARK: - FileItem
-struct FileItem: Codable {
+struct FileItem: Codable,Hashable {
+    static func == (lhs: FileItem, rhs: FileItem) -> Bool {
+        lhs.pid == rhs.pid
+    }
+    
     let fid, aid, pid, fc: String?
     let fn, fco, ism: String?
     let isp, iss: Int?
@@ -155,7 +159,7 @@ struct FileItem: Codable {
 }
 
 // MARK: - FLItem (文件标签)
-struct FLItem: Codable {
+struct FLItem: Codable , Hashable{
     let id, name, sort, color: String?
     let isDefault, updateTime, createTime: Int?
 

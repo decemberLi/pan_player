@@ -91,11 +91,7 @@ struct ContentView: View {
                 }
             }
             .navigationDestination(for: String.self) { cid in
-                if cid == "root" {
-                    FileListView115(cid: nil)
-                } else {
-                    FileListView115(cid: cid)
-                }
+                FileListView115(currentDir: nil)
             }
             .padding()
         }
