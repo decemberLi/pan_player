@@ -50,6 +50,42 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+                
+                Section("法律信息") {
+                    Button(action: {
+                        // TODO: 跳转到隐私政策页面
+                        // let url = URL(string: "https://example.com/privacy")!
+                        // UIApplication.shared.open(url)
+                    }) {
+                        HStack {
+                            Image(systemName: "hand.raised")
+                                .foregroundColor(.blue)
+                            Text("隐私政策")
+                                .foregroundColor(.blue)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                    }
+                    
+                    Button(action: {
+                        // TODO: 跳转到用户协议页面
+                        // let url = URL(string: "https://example.com/terms")!
+                        // UIApplication.shared.open(url)
+                    }) {
+                        HStack {
+                            Image(systemName: "doc.text")
+                                .foregroundColor(.blue)
+                            Text("用户协议")
+                                .foregroundColor(.blue)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                    }
+                }
             }
             .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.large)
