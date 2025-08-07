@@ -1,24 +1,21 @@
 import SwiftUI
 import AVKit
+import KSPlayer
 
-struct AVPlayerViewControllerWrapper: UIViewControllerRepresentable {
-    let player: AVPlayer?
+struct AVPlayerViewControllerWrapper: UIViewRepresentable {
+    
+    let url: URL
     var showVR : (()->Void)?
     
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let controller = AVPlayerViewController()
-        controller.player = player
-        controller.showsPlaybackControls = true
-        let infoCircle = UIImage(systemName: "eye")
-        let showMoreInfo = UIAction(title: "Show VR", image: infoCircle) { action in
-            showVR?()
-        }
-        // Append the action to the array.
-        controller.contextualActions = [showMoreInfo]
-        return controller
+    func makeUIView(context: Context) -> IOSVideoPlayerView {
+      let player = IOSVideoPlayerView()
+        let options = KSOptions()
+        options.display = .vr
+        player.set(url: url, options: options)
+        return player
     }
     
-    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
+    func updateUIView(_ uiView: IOSVideoPlayerView, context: Context) {
         //        uiViewController.player = player
     }
 }
@@ -33,13 +30,19 @@ struct PlayView: View {
     
     
     var body: some View {
-        AVPlayerViewControllerWrapper(player: appModel.player.player,showVR: {
-            Task { @MainActor in
-                await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
-                dimiss()
-                dismissWindow(id: WindowIDs.mainWindow)
+        let url = appModel.streamModel?.url
+        Group {
+            if let url {
+                AVPlayerViewControllerWrapper(url: url,showVR: {
+                    Task { @MainActor in
+                        await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
+                        dimiss()
+                        dismissWindow(id: WindowIDs.mainWindow)
+                    }
+                })
             }
-        })
+        }
+        
         .onDisappear {
             appModel.pauseVideo()
         }

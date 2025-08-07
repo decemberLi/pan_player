@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVFoundation
+import KSPlayer
 
 /// Maintains app-wide state
 @MainActor
@@ -17,7 +18,10 @@ class AppModel {
     var videoPlaybackViewModel = VideoPlaybackViewModel()
     var player = VideoPlayer()
     
+    var streamModel : StreamModel?
+    
     init() {
+        KSOptions.secondPlayerType = KSMEPlayer.self
         Task {
           await  videoPlaybackViewModel.loadShaderMaterial()
         }
@@ -25,8 +29,9 @@ class AppModel {
     
     // 选择视频文件
     func selectVideo(url: URL) {
-        let streamModel = StreamModel(title: "video", details: "", url: url)
-        player.openStream(streamModel)
+        let model = StreamModel(title: "video", details: "", url: url)
+        streamModel = model
+        player.openStream(model)
         videoPlaybackViewModel.player = player.player
         videoPlaybackViewModel.update()
     }
