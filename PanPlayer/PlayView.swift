@@ -33,13 +33,12 @@ struct PlayView: View {
         let url = appModel.streamModel?.url
         Group {
             if let url {
-                AVPlayerViewControllerWrapper(url: url,showVR: {
-                    Task { @MainActor in
-                        await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
-                        dimiss()
-                        dismissWindow(id: WindowIDs.mainWindow)
-                    }
-                })
+                let options = {
+                    let op = KSOptions()
+                    op.display = .vr
+                    return op
+                }()
+                KSVideoPlayer(coordinator: appModel.player.player, url: url, options: options)
             }
         }
         

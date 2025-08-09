@@ -8,8 +8,9 @@
 import SwiftUI
 import AVFoundation
 import RealityKit
+import KSPlayer
 
-/// Video Player Controller interfacing the underlying `AVPlayer`, exposing states and controls to the UI.
+/// Video Player Controller interfacing the underlying `KSPlayer`, exposing states and controls to the UI.
 // @MainActor ensures properties are published on the main thread
 // which is critical for using them in SwiftUI Views
 @MainActor
@@ -95,15 +96,16 @@ public class VideoPlayer: Sendable {
               break
           case .scrubEnded:
               let seekTime = CMTime(seconds: currentTime, preferredTimescale: 1000)
-              player.seek(to: seekTime) { [weak self] finished in
-                  guard finished else {
-                      return
-                  }
-                  Task { @MainActor in
-                      self?.scrubState = .notScrubbing
-                      self?.restartControlPanelTask()
-                  }
-              }
+//              player.seek(to: seekTime)
+//              { [weak self] finished in
+//                  guard finished else {
+//                      return
+//                  }
+//                  Task { @MainActor in
+//                      self?.scrubState = .notScrubbing
+//                      self?.restartControlPanelTask()
+//                  }
+//              }
               hasReachedEnd = false
               break
           }
@@ -119,7 +121,7 @@ public class VideoPlayer: Sendable {
     
     //MARK: Immutable variables
     /// The video player
-    public let player = AVPlayer()
+    public var player = KSVideoPlayer.Coordinator()
     
     //MARK: Public methods
     /// Public initializer for visibility.
@@ -191,30 +193,29 @@ public class VideoPlayer: Sendable {
         title = stream.title
         details = stream.details
         
-        guard let playerItem = makePlayerItem(stream.url) else {
-            return
-        }
-        player.replaceCurrentItem(with: playerItem)
+        guard let url else  {return}
+        
+     _ =   player.makeView(url: url, options: KSOptions())
         scrubState = .notScrubbing
         setupObservers()
         
         // If the video format is equirectangular, extract the field of view (horizontal & vertical) and aspect ratio
-        if case .equirectangular(let fieldOfView, let forceFov) = stream.projection {
-            horizontalFieldOfView = max(0, min(360, fieldOfView))
-            
-            // Detect resolution and field of view, if available
-            Task { [self] in
-                guard let asset = playerItem.asset as? AVURLAsset,
-                      let (resolution, horizontalFieldOfView) =
-                        await VideoTools.getVideoDimensions(asset: asset) else {
-                    return
-                }
-                self.aspectRatio = Float(resolution.width / resolution.height)
-                if !forceFov, let horizontalFieldOfView {
-                    self.horizontalFieldOfView = max(0, min(360, horizontalFieldOfView))
-                }
-            }
-        }
+//        if case .equirectangular(let fieldOfView, let forceFov) = stream.projection {
+//            horizontalFieldOfView = max(0, min(360, fieldOfView))
+//            
+//            // Detect resolution and field of view, if available
+//            Task { [self] in
+//                guard let asset = playerItem.asset as? AVURLAsset,
+//                      let (resolution, horizontalFieldOfView) =
+//                        await VideoTools.getVideoDimensions(asset: asset) else {
+//                    return
+//                }
+//                self.aspectRatio = Float(resolution.width / resolution.height)
+//                if !forceFov, let horizontalFieldOfView {
+//                    self.horizontalFieldOfView = max(0, min(360, horizontalFieldOfView))
+//                }
+//            }
+//        }
         
         // if streaming from HLS, attempt to retrieve the resolution options
         
@@ -237,7 +238,7 @@ public class VideoPlayer: Sendable {
         // temporarily stop the observers to stop them from interfering in the state changes
         tearDownObservers()
         
-        player.replaceCurrentItem(with: playerItem)
+//        player.replaceCurrentItem(with: playerItem)
         
         // "simulating" a scrub end will seek the current time to the right spot
         scrubState = .scrubEnded
@@ -290,9 +291,9 @@ public class VideoPlayer: Sendable {
     /// If playback has reached the end of the video (`hasReachedEnd` is true), play from the beginning.
     public func play() {
         if hasReachedEnd {
-            player.seek(to: CMTime.zero)
+            player.seek(time: 0)
         }
-        player.play()
+        player.playerLayer?.play()
         paused = false
         hasReachedEnd = false
         restartControlPanelTask()
@@ -300,7 +301,7 @@ public class VideoPlayer: Sendable {
     
     /// Pause media playback.
     public func pause() {
-        player.pause()
+        player.playerLayer?.pause()
         paused = true
         restartControlPanelTask()
     }
@@ -316,7 +317,7 @@ public class VideoPlayer: Sendable {
                      toleranceBefore: CMTime = CMTime.positiveInfinity,
                      toleranceAfter: CMTime = CMTime.positiveInfinity) {
         hasReachedEnd = false
-        player.seek(to: time, toleranceBefore: toleranceBefore, toleranceAfter: toleranceAfter)
+        player.seek(time: time.seconds)
         restartControlPanelTask()
     }
     
@@ -340,26 +341,26 @@ public class VideoPlayer: Sendable {
     
     /// Jump back 15 seconds in media playback.
     public func minus15() {
-        guard let time = player.currentItem?.currentTime() else {
-            return
-        }
-        let newTime = time - CMTime(seconds: 15.0, preferredTimescale: 1000)
-        seek(to: newTime)
+//        guard let time = player.currentItem?.currentTime() else {
+//            return
+//        }
+//        let newTime = time - CMTime(seconds: 15.0, preferredTimescale: 1000)
+//        seek(to: newTime)
     }
     
     /// Jump forward 15 seconds in media playback.
     public func plus15() {
-        guard let time = player.currentItem?.currentTime() else {
-            return
-        }
-        let newTime = time + CMTime(seconds: 15.0, preferredTimescale: 1000)
-        seek(to: newTime)
+//        guard let time = player.currentItem?.currentTime() else {
+//            return
+//        }
+//        let newTime = time + CMTime(seconds: 15.0, preferredTimescale: 1000)
+//        seek(to: newTime)
     }
     
     /// Stop media playback and unload the current media.
     public func stop() {
         tearDownObservers()
-        player.replaceCurrentItem(with: nil)
+        player.playerLayer?.stop()
         title = ""
         details = ""
         duration = 0
@@ -382,97 +383,92 @@ public class VideoPlayer: Sendable {
     // Tricky: the observer callback closures must capture a weak self for safety, and execute on the MainActor
     /// Set up observers to register current media duration, current playback time, current bitrate, playback end event.
     private func setupObservers() {
-        if timeObserver == nil {
-            let interval = CMTime(seconds: 0.005, preferredTimescale: 1000)
-            timeObserver = player.addPeriodicTimeObserver(
-                forInterval: interval,
-                queue: .main
-            ) { time in
-                Task { @MainActor [weak self]  in
-                    if let self {
-                        let event = self.player.currentItem?.accessLog()?.events.last
-                        // Average bitrate is supposed to be the most representative value
-                        // but some HLS manifests only advertise bitrate.
-                        if let event, event.indicatedAverageBitrate > 0 {
-                            self.bitrate = event.indicatedAverageBitrate
-                        } else if let event, event.indicatedBitrate > 0 {
-                            self.bitrate = event.indicatedBitrate
-                        } else {
-                            self.bitrate = 0
-                        }
-                        
-                        switch self.scrubState {
-                        case .notScrubbing:
-                            self.currentTime = time.seconds
-                            break
-                        case .scrubStarted: return
-                        case .scrubEnded: return
-                        }
-                    }
-                }
-            }
-        }
-        
-        if durationObserver == nil, let currentItem = player.currentItem {
-            durationObserver = currentItem.observe(
-                \.duration,
-                 options: [.new, .initial]
-            ) {  item, _ in
-                let duration = CMTimeGetSeconds(item.duration)
-                if !duration.isNaN {
-                    Task { @MainActor [weak self] in
-                        self?.duration = duration
-                    }
-                }
-            }
-        }
-        
-        if mediaStatusObserver == nil, let currentItem = player.currentItem {
-            mediaStatusObserver = currentItem.observe(
-                \.status,
-                 options: [.new, .initial]
-            ) { item, _ in
-                Task { @MainActor [weak self]  in
-                    self?.loading = item.status == .unknown
-                    if item.status == .failed, let error = item.error {
-                        print("Error: failed to load media: \(error.localizedDescription)")
-                        self?.error = error
-                    } else {
-                        self?.error = nil
-                    }
-                }
-            }
-        }
-        
-        if bufferingObserver == nil {
-            bufferingObserver = player.observe(
-                \.timeControlStatus,
-                 options: [.new, .old, .initial]
-            ) {  player, status in
-                Task { @MainActor [weak self] in
-                    self?.buffering = player.timeControlStatus == .waitingToPlayAtSpecifiedRate
-                    // buffering doesn't bring up the control panel but prevents auto dismiss.
-                    // auto dismiss after play resumed.
-                    if (status.oldValue, status.newValue) == (.waitingToPlayAtSpecifiedRate, .playing) {
-                        self?.restartControlPanelTask()
-                    }
-                }
-            }
-        }
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(onPlayReachedEnd),
-            name: AVPlayerItem.didPlayToEndTimeNotification,
-            object: player.currentItem
-        )
+//        if timeObserver == nil {
+//            let interval = CMTime(seconds: 0.005, preferredTimescale: 1000)
+//            timeObserver = player.addPeriodicTimeObserver(
+//                forInterval: interval,
+//                queue: .main
+//            ) { time in
+//                Task { @MainActor [weak self]  in
+//                    if let self {
+//                        let event = self.player.currentItem?.accessLog()?.events.last
+//                        // Average bitrate is supposed to be the most representative value
+//                        // but some HLS manifests only advertise bitrate.
+//                        if let event, event.indicatedAverageBitrate > 0 {
+//                            self.bitrate = event.indicatedAverageBitrate
+//                        } else if let event, event.indicatedBitrate > 0 {
+//                            self.bitrate = event.indicatedBitrate
+//                        } else {
+//                            self.bitrate = 0
+//                        }
+//                        
+//                        switch self.scrubState {
+//                        case .notScrubbing:
+//                            self.currentTime = time.seconds
+//                            break
+//                        case .scrubStarted: return
+//                        case .scrubEnded: return
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        
+//        if durationObserver == nil, let currentItem = player.currentItem {
+//            durationObserver = currentItem.observe(
+//                \.duration,
+//                 options: [.new, .initial]
+//            ) {  item, _ in
+//                let duration = CMTimeGetSeconds(item.duration)
+//                if !duration.isNaN {
+//                    Task { @MainActor [weak self] in
+//                        self?.duration = duration
+//                    }
+//                }
+//            }
+//        }
+//        
+//        if mediaStatusObserver == nil, let currentItem = player.currentItem {
+//            mediaStatusObserver = currentItem.observe(
+//                \.status,
+//                 options: [.new, .initial]
+//            ) { item, _ in
+//                Task { @MainActor [weak self]  in
+//                    self?.loading = item.status == .unknown
+//                    if item.status == .failed, let error = item.error {
+//                        print("Error: failed to load media: \(error.localizedDescription)")
+//                        self?.error = error
+//                    } else {
+//                        self?.error = nil
+//                    }
+//                }
+//            }
+//        }
+//        
+//        if bufferingObserver == nil {
+//            bufferingObserver = player.observe(
+//                \.timeControlStatus,
+//                 options: [.new, .old, .initial]
+//            ) {  player, status in
+//                Task { @MainActor [weak self] in
+//                    self?.buffering = player.timeControlStatus == .waitingToPlayAtSpecifiedRate
+//                    // buffering doesn't bring up the control panel but prevents auto dismiss.
+//                    // auto dismiss after play resumed.
+//                    if (status.oldValue, status.newValue) == (.waitingToPlayAtSpecifiedRate, .playing) {
+//                        self?.restartControlPanelTask()
+//                    }
+//                }
+//            }
+//        }
+//        
+
     }
     
     /// Tear down observers set up in `setupObservers()`.
     private func tearDownObservers() {
-        if let timeObserver {
-            player.removeTimeObserver(timeObserver)
-        }
+//        if let timeObserver {
+//            player.removeTimeObserver(timeObserver)
+//        }
         timeObserver = nil
         durationObserver?.invalidate()
         durationObserver = nil
@@ -480,12 +476,12 @@ public class VideoPlayer: Sendable {
         mediaStatusObserver = nil
         bufferingObserver?.invalidate()
         bufferingObserver = nil
-        
-        NotificationCenter.default.removeObserver(
-            self,
-            name: AVPlayerItem.didPlayToEndTimeNotification,
-            object: player.currentItem
-        )
+//        
+//        NotificationCenter.default.removeObserver(
+//            self,
+//            name: AVPlayerItem.didPlayToEndTimeNotification,
+//            object: player.currentItem
+//        )
     }
     
     /// Restarts a task with a 10-second timer to auto-hide the control panel.

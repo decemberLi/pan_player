@@ -1,6 +1,15 @@
 {
-  "originHash" : "ddf3f086c86dc846370b9ce92ccdfe0e5065adf80e6ee2a6e77fc4f4e85d9251",
+  "originHash" : "add1d3af746644900a0cf0a8d44bc5fc536eb9cf852f87a368049695d9dae360",
   "pins" : [
+    {
+      "identity" : "ffmpegkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kingslay/FFmpegKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "d7048037a2eb94a3b08113fbf43aa92bdcb332d9"
+      }
+    },
     {
       "identity" : "swiftui-toasts",
       "kind" : "remoteSourceControl",

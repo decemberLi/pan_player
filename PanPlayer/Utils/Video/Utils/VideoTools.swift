@@ -7,6 +7,7 @@
 
 import RealityKit
 @preconcurrency import AVFoundation
+import VideoToolbox
 
 @MainActor
 public struct VideoTools {
@@ -170,5 +171,26 @@ public struct VideoTools {
         
         let horizontalFieldOfView = Float(rawHorizontalFieldOfView) / 1000.0
         return (naturalSize, horizontalFieldOfView)
+    }
+    
+    static func dumpPixelBufferAsImage(_ pixelBuffer: CVPixelBuffer) {
+        var cgImageOut: CGImage?
+        let status = VTCreateCGImageFromCVPixelBuffer(pixelBuffer, options: nil, imageOut: &cgImageOut)
+        guard status == noErr, let cgImage = cgImageOut else {
+            NSLog("VTCreateCGImageFromCVPixelBuffer failed: \(status)")
+            return
+        }
+
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("frame_debug.png")
+        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil) else {
+            NSLog("CGImageDestinationCreateWithURL failed")
+            return
+        }
+        CGImageDestinationAddImage(destination, cgImage, nil)
+        if CGImageDestinationFinalize(destination) {
+            NSLog("Frame image written: \(url.path)")
+        } else {
+            NSLog("CGImageDestinationFinalize failed")
+        }
     }
 }

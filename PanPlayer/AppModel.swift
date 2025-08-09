@@ -32,7 +32,7 @@ class AppModel {
         let model = StreamModel(title: "video", details: "", url: url)
         streamModel = model
         player.openStream(model)
-        videoPlaybackViewModel.player = player.player
+        videoPlaybackViewModel.url = url
         videoPlaybackViewModel.update()
     }
     

@@ -15,6 +15,7 @@ import Toasts
 struct ContentView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.presentToast) var presentToast
+    @Environment(\.openImmersiveSpace) var openImmersiveSpace
     
     @State private var showingFilePicker = false
     @State private var showPlayer = false
@@ -106,7 +107,10 @@ struct ContentView: View {
                 if let url = urls.first {
                    _ = url.startAccessingSecurityScopedResource()
                     appModel.selectVideo(url: url)
-                    showPlayer = true
+                    // showPlayer = true
+                    Task {
+                        await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
+                    }
                 }
             case .failure(let error):
                 print("文件选择错误: \(error)")

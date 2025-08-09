@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8EB7AE0E2E4462510051DBDD /* KSPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 8EB7AE0D2E4462510051DBDD /* KSPlayer */; };
 		8EC41A5A2E33D71B00534743 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 8EC41A592E33D71B00534743 /* RealityKitContent */; };
 		8EC41AB52E3C779100534743 /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 8EC41AB42E3C779100534743 /* Toasts */; };
+		8EFFAEE12E47466C00B9567B /* KSPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 8EFFAEE02E47466C00B9567B /* KSPlayer */; };
+		8EFFAEEF2E47496E00B9567B /* KSPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 8EFFAEEE2E47496E00B9567B /* KSPlayer */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,8 +45,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8EC41AB52E3C779100534743 /* Toasts in Frameworks */,
+				8EFFAEE12E47466C00B9567B /* KSPlayer in Frameworks */,
 				8EC41A5A2E33D71B00534743 /* RealityKitContent in Frameworks */,
-				8EB7AE0E2E4462510051DBDD /* KSPlayer in Frameworks */,
+				8EFFAEEF2E47496E00B9567B /* KSPlayer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,7 +101,8 @@
 			packageProductDependencies = (
 				8EC41A592E33D71B00534743 /* RealityKitContent */,
 				8EC41AB42E3C779100534743 /* Toasts */,
-				8EB7AE0D2E4462510051DBDD /* KSPlayer */,
+				8EFFAEE02E47466C00B9567B /* KSPlayer */,
+				8EFFAEEE2E47496E00B9567B /* KSPlayer */,
 			);
 			productName = PanPlayer;
 			productReference = 8EC41A542E33D71B00534743 /* PanPlayer.app */;
@@ -131,7 +134,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				8EC41AB32E3C779100534743 /* XCRemoteSwiftPackageReference "swiftui-toasts" */,
-				8EB7AE0C2E4462510051DBDD /* XCRemoteSwiftPackageReference "KSPlayer" */,
+				8EFFAEED2E47496E00B9567B /* XCLocalSwiftPackageReference "../KSPlayer" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8EC41A552E33D71B00534743 /* Products */;
@@ -366,15 +369,14 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		8EB7AE0C2E4462510051DBDD /* XCRemoteSwiftPackageReference "KSPlayer" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kingslay/KSPlayer.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.3.4;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		8EFFAEED2E47496E00B9567B /* XCLocalSwiftPackageReference "../KSPlayer" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../KSPlayer;
 		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
 		8EC41AB32E3C779100534743 /* XCRemoteSwiftPackageReference "swiftui-toasts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sunghyun-k/swiftui-toasts";
@@ -386,11 +388,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8EB7AE0D2E4462510051DBDD /* KSPlayer */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8EB7AE0C2E4462510051DBDD /* XCRemoteSwiftPackageReference "KSPlayer" */;
-			productName = KSPlayer;
-		};
 		8EC41A592E33D71B00534743 /* RealityKitContent */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = RealityKitContent;
@@ -399,6 +396,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8EC41AB32E3C779100534743 /* XCRemoteSwiftPackageReference "swiftui-toasts" */;
 			productName = Toasts;
+		};
+		8EFFAEE02E47466C00B9567B /* KSPlayer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KSPlayer;
+		};
+		8EFFAEEE2E47496E00B9567B /* KSPlayer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KSPlayer;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
