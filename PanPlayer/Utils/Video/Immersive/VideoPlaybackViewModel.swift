@@ -105,7 +105,7 @@ final class VideoPlaybackViewModel {
     func update() {
         
         player?.onVideoFrame = { buffer in
-            NSLog("FF width x height = \(CVPixelBufferGetWidth(buffer)) x \(CVPixelBufferGetHeight(buffer))")
+//            NSLog("FF width x height = \(CVPixelBufferGetWidth(buffer)) x \(CVPixelBufferGetHeight(buffer))")
             self.processVideoBuffer(buffer)
         }
         
@@ -148,6 +148,7 @@ final class VideoPlaybackViewModel {
     }
 
     private func processVideoBuffer(_ buffer: CVPixelBuffer) {
+        
         let width = CVPixelBufferGetWidth(buffer)
         let height = CVPixelBufferGetHeight(buffer)
 

@@ -11,6 +11,7 @@ import RealityKitContent
 import AVKit
 import UniformTypeIdentifiers
 import Toasts
+import PhotosUI
 
 struct ContentView: View {
     @Environment(AppModel.self) private var appModel
@@ -22,11 +23,32 @@ struct ContentView: View {
     @State private var showLoginAlert = false
     @State private var showWebView = false
     @State private var path = NavigationPath()
+    @State private var showPhotosPicker = false
+    @State private var photoPickerItem: PhotosPickerItem?
     
     var body: some View {
         NavigationStack(path: $path) {
             Grid(horizontalSpacing: 30, verticalSpacing: 30) {
                 GridRow {
+                    // 相册视频按钮
+                    Button(action: {
+                        showPhotosPicker = true
+                    }) {
+                        VStack(spacing: 10) {
+                            Image(systemName: "photo.on.rectangle")
+                                .font(.system(size: 60))
+                                .foregroundColor(.blue)
+                            Text("相册视频")
+                                .font(.caption)
+                                .foregroundColor(.primary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(width: 120, height: 120)
+                        .background(Color.clear)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
                     // 文件选择按钮
                     Button(action: {
                         showingFilePicker = true
@@ -89,6 +111,8 @@ struct ContentView: View {
                     } message: {
                         Text("检测到您尚未登录115网盘，点击确定前往登录页面。")
                     }
+
+                   
                 }
             }
             .navigationDestination(for: String.self) { cid in
@@ -107,13 +131,31 @@ struct ContentView: View {
                 if let url = urls.first {
                    _ = url.startAccessingSecurityScopedResource()
                     appModel.selectVideo(url: url)
-                    // showPlayer = true
-                    Task {
-                        await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
-                    }
+                    showPlayer = true
                 }
             case .failure(let error):
                 print("文件选择错误: \(error)")
+            }
+        }
+        .photosPicker(isPresented: $showPhotosPicker, selection: $photoPickerItem, matching: .videos)
+        .onChange(of: photoPickerItem) { _, newItem in
+            guard let item = newItem else { return }
+            Task {
+                do {
+                    if let movie = try await item.loadTransferable(type: SpatialVideo.self) {
+                        switch movie.status {
+                        case .ready:
+                            appModel.selectVideo(url: movie.url)
+                            showPlayer = true
+                        case .failed:
+                            print("相册视频解析失败")
+                        }
+                    }
+                } catch {
+                    print("从相册加载视频失败: \(error)")
+                }
+                // 重置，便于下一次选择
+                photoPickerItem = nil
             }
         }
         .fullScreenCover(isPresented: $showPlayer) {
