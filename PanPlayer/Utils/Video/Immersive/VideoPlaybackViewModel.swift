@@ -29,9 +29,9 @@ final class VideoPlaybackViewModel {
     private var textureResource: TextureResource?
 
     // FFmpeg 解码器（基于 MEPlayerItem）
-    private var decoder: FFmpegFrameDecoder?
+//    private var decoder: FFmpegFrameDecoder?
     // 若仍需保留 AVPlayer 可设为弱引用，但此示例改为使用 FFmpeg
-    weak var player: AVPlayer?
+    weak var player: KSVideoPlayer.Coordinator?
     var url: URL?
     private var statusObservation: NSKeyValueObservation?
     private var displayLink: DisplayLink?
@@ -103,25 +103,31 @@ final class VideoPlaybackViewModel {
     }
 
     func update() {
+        
+        player?.onVideoFrame = { buffer in
+            NSLog("FF width x height = \(CVPixelBufferGetWidth(buffer)) x \(CVPixelBufferGetHeight(buffer))")
+            self.processVideoBuffer(buffer)
+        }
+        
         // 使用 FFmpeg 解码：传入 URL，准备好后启动 DisplayLink 拉帧
-        guard let url else { return }
-        let decoder = FFmpegFrameDecoder()
-        decoder.prepare(url: url) { _ in
-        }
-        self.decoder = decoder
-
-        // 刷新率使用保守默认 60fps（如需精确，可在上层传入或另行测量）
-        let displayLink = DisplayLink(frameRate: 60)
-        displayLink.handler = { [weak self] in
-            self?.handleDisplayLinkUpdate()
-        }
-        displayLink.start()
-        self.displayLink = displayLink
+//        guard let url else { return }
+//        let decoder = FFmpegFrameDecoder()
+//        decoder.prepare(url: url) { _ in
+//        }
+//        self.decoder = decoder
+//
+//        // 刷新率使用保守默认 60fps（如需精确，可在上层传入或另行测量）
+//        let displayLink = DisplayLink(frameRate: 60)
+//        displayLink.handler = { [weak self] in
+//            self?.handleDisplayLinkUpdate()
+//        }
+//        displayLink.start()
+//        self.displayLink = displayLink
     }
 
     func stop() {
-        player?.pause()
-        decoder?.shutdown()   // 建议补上
+        player?.playerLayer?.pause()
+
         surfaceMaterial = nil
         textureResource = nil
         drawableQueue = nil
@@ -134,11 +140,11 @@ final class VideoPlaybackViewModel {
     private func handleReadyToPlay(_ item: AVPlayerItem) { }
 
     private func handleDisplayLinkUpdate() {
-        renderQueue.async { [weak self] in
-            guard let self, let buffer = self.decoder?.nextPixelBuffer() else { return }
-            NSLog("FF width x height = \(CVPixelBufferGetWidth(buffer)) x \(CVPixelBufferGetHeight(buffer))")
-            self.processVideoBuffer(buffer)
-        }
+//        renderQueue.async { [weak self] in
+//            guard let self, let buffer = self.decoder?.nextPixelBuffer() else { return }
+//            NSLog("FF width x height = \(CVPixelBufferGetWidth(buffer)) x \(CVPixelBufferGetHeight(buffer))")
+//            self.processVideoBuffer(buffer)
+//        }
     }
 
     private func processVideoBuffer(_ buffer: CVPixelBuffer) {
@@ -162,8 +168,8 @@ final class VideoPlaybackViewModel {
                 )
                 self.drawableQueue = drawableQueue
 
-                DispatchQueue.main.sync {
-                    textureResource!.replace(withDrawables: drawableQueue)
+                DispatchQueue.main.async {[weak self] in
+                    self?.textureResource!.replace(withDrawables: drawableQueue)
                 }
 
                 renderWithDrawableQueue(drawableQueue, buffer: buffer)

@@ -33,6 +33,7 @@ class AppModel {
         streamModel = model
         player.openStream(model)
         videoPlaybackViewModel.url = url
+        videoPlaybackViewModel.player = player.player
         videoPlaybackViewModel.update()
     }
     
