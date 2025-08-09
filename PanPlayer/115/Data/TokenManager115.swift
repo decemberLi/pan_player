@@ -157,7 +157,7 @@ class TokenManager115 {
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 
-            var body = Data()
+        var body = Data()
 
         // Add text field
         body.append("--\(boundary)\r\n".data(using: .utf8)!)

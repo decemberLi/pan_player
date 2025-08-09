@@ -188,12 +188,12 @@ public class VideoPlayer: Sendable {
     public func openStream(_ stream: StreamModel) {
         // Clean up the AVPlayer first, avoid bad states
         stop()
-        
         url = stream.url
         title = stream.title
         details = stream.details
         
         guard let url else  {return}
+        player = KSVideoPlayer.Coordinator()
         
      _ =   player.makeView(url: url, options: KSOptions())
         scrubState = .notScrubbing

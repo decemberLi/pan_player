@@ -38,7 +38,12 @@ struct PlayView: View {
                     op.display = .vr
                     return op
                 }()
-                KSVideoPlayer(coordinator: appModel.player.player, url: url, options: options)
+                KSVideoPlayerView(coordinator: appModel.player.player, url: url, options: options,onShowVR:{
+                    Task {
+                        await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
+                        dismissWindow()
+                    }
+                })
             }
         }
         

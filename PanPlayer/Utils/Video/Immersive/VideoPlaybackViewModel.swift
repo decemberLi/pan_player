@@ -32,7 +32,7 @@ final class VideoPlaybackViewModel {
 //    private var decoder: FFmpegFrameDecoder?
     // 若仍需保留 AVPlayer 可设为弱引用，但此示例改为使用 FFmpeg
     weak var player: KSVideoPlayer.Coordinator?
-    var url: URL?
+    
     private var statusObservation: NSKeyValueObservation?
     private var displayLink: DisplayLink?
     private var textureCache: CVMetalTextureCache?

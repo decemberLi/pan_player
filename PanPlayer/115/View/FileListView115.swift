@@ -25,28 +25,33 @@ struct FileListView115: View {
     
     var body: some View {
         let title = currentDir?.fn ?? "115"
-        ScrollView {
-            LazyVGrid(columns: gridItems, spacing: 10) {
-                ForEach(fileList, id: \.fid) { file in
-                    FileItemView(file: file) { selectedFile in
-                        handleFileSelection(selectedFile)
-                    }
-                }
-            }
-            .padding()
-            if hasMore {
+        Group{
+            if isLoading && fileList.isEmpty {
                 ProgressView()
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .onAppear {
-                        Task {
-                           await loadFiles()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: gridItems, spacing: 10) {
+                        ForEach(fileList, id: \.fid) { file in
+                            FileItemView(file: file) { selectedFile in
+                                handleFileSelection(selectedFile)
+                            }
                         }
                     }
-            }
+                    .padding()
+                    if hasMore {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .onAppear {
+                                Task { await loadFiles() }
+                            }
+                    }
         }
         .refreshable {
            await loadFiles()
+        }
+            }
         }
         .navigationTitle(title)
         .onAppear {
@@ -86,6 +91,7 @@ struct FileListView115: View {
         }
     }
     
+    @MainActor
     private func loadFiles() async{
         guard !isLoading else { return }
         isLoading = true
@@ -148,9 +154,14 @@ struct FileListView115: View {
         
         Task {
             do {
+                let downloadData = try await DataManager115.shared.getFileDownloadURL(pick_code: pickCode)
                 let videoData = try await DataManager115.shared.getVideoPlayURL(pick_code: pickCode)
                 
-                if let videoUrls = videoData.data?.videoUrl, !videoUrls.isEmpty {
+                
+                if var videoUrls = videoData.data?.videoUrl, !videoUrls.isEmpty {
+                    if !downloadData.isEmpty {
+                        videoUrls.append(VideoURL115(url: downloadData, height: 0, width: 0, definition: 0, title: "原画", definitionN: 0))
+                    }
                     await MainActor.run {
                         availableVideos = videoUrls
                         showVideoSelection = true
