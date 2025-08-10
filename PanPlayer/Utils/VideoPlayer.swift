@@ -94,18 +94,9 @@ public class VideoPlayer: Sendable {
           case .scrubStarted:
               cancelControlPanelTask()
               break
-          case .scrubEnded:
-              let seekTime = CMTime(seconds: currentTime, preferredTimescale: 1000)
-//              player.seek(to: seekTime)
-//              { [weak self] finished in
-//                  guard finished else {
-//                      return
-//                  }
-//                  Task { @MainActor in
-//                      self?.scrubState = .notScrubbing
-//                      self?.restartControlPanelTask()
-//                  }
-//              }
+           case .scrubEnded:
+              seek(to: currentTime)
+              scrubState = .notScrubbing
               hasReachedEnd = false
               break
           }
@@ -118,6 +109,10 @@ public class VideoPlayer: Sendable {
     private var mediaStatusObserver: NSKeyValueObservation?
     private var bufferingObserver: NSKeyValueObservation?
     private var dismissControlPanelTask: Task<Void, Never>?
+    private var playbackTimeTask: Task<Void, Never>?
+    private var referenceWallClockDate: Date?
+    private var referencePlaybackTime: Double = 0
+    private var didNotifyPlaybackEnded: Bool = false
     
     //MARK: Immutable variables
     /// The video player
@@ -195,7 +190,7 @@ public class VideoPlayer: Sendable {
         guard let url else  {return}
         player = KSVideoPlayer.Coordinator()
         
-     _ =   player.makeView(url: url, options: KSOptions())
+        _ = player.makeView(url: url, options: KSOptions())
         scrubState = .notScrubbing
         setupObservers()
         
@@ -222,6 +217,30 @@ public class VideoPlayer: Sendable {
         resolutionOptions = []
         selectedResolutionIndex = -1
         selectedAudioIndex = -1
+
+        // 预载入时长，初始化状态，便于控制面板显示
+        loading = true
+        Task { @MainActor [weak self] in
+            guard let self, let url = self.url else { return }
+            let asset = AVURLAsset(url: url)
+            do {
+                let dur = try await asset.load(.duration)
+                let seconds = CMTimeGetSeconds(dur)
+                if !seconds.isNaN && seconds.isFinite {
+                    self.duration = max(0, seconds)
+                } else {
+                    self.duration = 0
+                }
+            } catch {
+                self.duration = 0
+            }
+            self.loading = false
+            self.paused = true
+            self.currentTime = 0
+            self.referenceWallClockDate = nil
+            self.referencePlaybackTime = 0
+            self.didNotifyPlaybackEnded = false
+        }
     }
     
     /// Load a stream variant for the currently selected resolution and audio options, preserving other states.
@@ -291,11 +310,13 @@ public class VideoPlayer: Sendable {
     /// If playback has reached the end of the video (`hasReachedEnd` is true), play from the beginning.
     public func play() {
         if hasReachedEnd {
-            player.seek(time: 0)
+            seek(to: 0)
         }
         player.playerLayer?.play()
         paused = false
         hasReachedEnd = false
+        didNotifyPlaybackEnded = false
+        startPlaybackTimeTaskIfNeeded()
         restartControlPanelTask()
     }
     
@@ -303,6 +324,8 @@ public class VideoPlayer: Sendable {
     public func pause() {
         player.playerLayer?.pause()
         paused = true
+        updateCurrentTimeFromReference()
+        stopPlaybackTimeTask()
         restartControlPanelTask()
     }
 
@@ -317,7 +340,12 @@ public class VideoPlayer: Sendable {
                      toleranceBefore: CMTime = CMTime.positiveInfinity,
                      toleranceAfter: CMTime = CMTime.positiveInfinity) {
         hasReachedEnd = false
-        player.seek(time: time.seconds)
+        let seconds = max(0, min(time.seconds, duration > 0 ? duration : time.seconds))
+        player.seek(time: seconds)
+        currentTime = seconds
+        referenceWallClockDate = Date()
+        referencePlaybackTime = currentTime
+        didNotifyPlaybackEnded = false
         restartControlPanelTask()
     }
     
@@ -341,20 +369,15 @@ public class VideoPlayer: Sendable {
     
     /// Jump back 15 seconds in media playback.
     public func minus15() {
-//        guard let time = player.currentItem?.currentTime() else {
-//            return
-//        }
-//        let newTime = time - CMTime(seconds: 15.0, preferredTimescale: 1000)
-//        seek(to: newTime)
+        let target = max(0, currentTime - 15.0)
+        seek(to: target)
     }
     
     /// Jump forward 15 seconds in media playback.
     public func plus15() {
-//        guard let time = player.currentItem?.currentTime() else {
-//            return
-//        }
-//        let newTime = time + CMTime(seconds: 15.0, preferredTimescale: 1000)
-//        seek(to: newTime)
+        let end = duration > 0 ? duration : (currentTime + 15.0)
+        let target = min(end, currentTime + 15.0)
+        seek(to: target)
     }
     
     /// Stop media playback and unload the current media.
@@ -366,6 +389,10 @@ public class VideoPlayer: Sendable {
         duration = 0
         currentTime = 0
         bitrate = 0
+        stopPlaybackTimeTask()
+        referenceWallClockDate = nil
+        referencePlaybackTime = 0
+        didNotifyPlaybackEnded = false
     }
     
     //MARK: Private methods
@@ -500,5 +527,50 @@ public class VideoPlayer: Sendable {
     private func cancelControlPanelTask() {
         dismissControlPanelTask?.cancel()
         dismissControlPanelTask = nil
+    }
+
+    // MARK: - Internal time tracking
+    private func startPlaybackTimeTaskIfNeeded() {
+        if playbackTimeTask != nil { return }
+        referenceWallClockDate = Date()
+        referencePlaybackTime = currentTime
+        playbackTimeTask = Task { [weak self] in
+            while let self, !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(200))
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    guard !self.paused, !self.loading, !self.hasReachedEnd else { return }
+                    guard self.scrubState == .notScrubbing else { return }
+                    self.updateCurrentTimeFromReference()
+                    if self.duration > 0, self.currentTime >= self.duration - 0.05 {
+                        self.currentTime = self.duration
+                        self.hasReachedEnd = true
+                        self.paused = true
+                        self.stopPlaybackTimeTask()
+                        if !self.didNotifyPlaybackEnded {
+                            self.didNotifyPlaybackEnded = true
+                            self.showControlPanel()
+                            self.playbackEndedAction?()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func stopPlaybackTimeTask() {
+        playbackTimeTask?.cancel()
+        playbackTimeTask = nil
+    }
+
+    private func updateCurrentTimeFromReference() {
+        guard let startDate = referenceWallClockDate else { return }
+        let elapsed = Date().timeIntervalSince(startDate)
+        let projected = referencePlaybackTime + elapsed
+        if duration > 0 {
+            currentTime = min(max(0, projected), duration)
+        } else {
+            currentTime = max(0, projected)
+        }
     }
 }
