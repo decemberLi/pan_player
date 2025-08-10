@@ -9,6 +9,7 @@ struct FileListView115: View {
     let currentDir: FileItem?
     @State private var fileList: [FileItem] = []
     @State private var isLoading = false
+    @State private var isFetchingVideo = false
     @State private var offset = 0
     @State private var hasMore = false
     @State private var showVideo = false
@@ -25,7 +26,8 @@ struct FileListView115: View {
     
     var body: some View {
         let title = currentDir?.fn ?? "115"
-        Group{
+        ZStack {
+            Group{
             if isLoading && fileList.isEmpty {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -51,6 +53,20 @@ struct FileListView115: View {
         .refreshable {
            await loadFiles()
         }
+            }
+        }
+            if isFetchingVideo {
+                ZStack {
+                    Color.black.opacity(0.35).ignoresSafeArea()
+                    ProgressView("加载中...")
+                        .controlSize(.large)
+                        .padding(20)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(12)
+                }
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.2), value: isFetchingVideo)
+                .allowsHitTesting(true)
             }
         }
         .navigationTitle(title)
@@ -163,7 +179,7 @@ struct FileListView115: View {
     
     private func playVideo(_ file: FileItem) {
         guard let pickCode = file.pc else { return }
-        
+        isFetchingVideo = true
         Task {
             do {
                 let downloadData = try await DataManager115.shared.getFileDownloadURL(pick_code: pickCode)
@@ -179,6 +195,7 @@ struct FileListView115: View {
                     }
                     await MainActor.run {
                         availableVideos = videoUrls
+                        isFetchingVideo = false
                         showVideoSelection = true
                     }
                 } else {
@@ -187,6 +204,9 @@ struct FileListView115: View {
                         message: "获取视频播放地址失败"
                     )
                     presentToast(toast)
+                    await MainActor.run {
+                        isFetchingVideo = false
+                    }
                 }
             } catch {
                 print("[FileListView115] 获取视频播放地址失败: \(error)")
@@ -195,6 +215,9 @@ struct FileListView115: View {
                     message: "获取视频播放地址失败"
                 )
                 presentToast(toast)
+                await MainActor.run {
+                    isFetchingVideo = false
+                }
             }
         }
     }
