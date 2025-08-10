@@ -219,30 +219,61 @@ public class VideoPlayer: Sendable {
         selectedResolutionIndex = -1
         selectedAudioIndex = -1
 
-        // 预载入时长，初始化状态，便于控制面板显示
+        // 初始化状态（duration 改为通过 KSVideoPlayer.Coordinator 获取）
         loading = true
-        Task { @MainActor [weak self] in
-            guard let self, let url = self.url else { return }
-            print("[VideoPlayer] preload asset for duration url=\(url.absoluteString)")
-            let asset = AVURLAsset(url: url)
-            do {
-                let dur = try await asset.load(.duration)
-                let seconds = CMTimeGetSeconds(dur)
-                if !seconds.isNaN && seconds.isFinite {
-                    self.duration = max(0, seconds)
-                } else {
-                    self.duration = 0
+        paused = true
+        currentTime = 0
+        referenceWallClockDate = nil
+        referencePlaybackTime = 0
+        didNotifyPlaybackEnded = false
+
+        // 通过底层回调同步 duration 与 loading 状态
+        player.onPlay = { [weak self] current, total in
+            Task { @MainActor in
+                guard let self else { return }
+                // 同步当前播放时间（拖拽时不覆盖）
+                if self.scrubState == .notScrubbing {
+                    let clamped = max(0, current)
+                    self.currentTime = clamped
+                    self.referenceWallClockDate = Date()
+                    self.referencePlaybackTime = clamped
                 }
-            } catch {
-                self.duration = 0
-                print("[VideoPlayer] preload duration failed: \(error)")
+                // 同步总时长
+                if !total.isNaN && total.isFinite {
+                    self.duration = max(0, total)
+                }
+                // 结束检测
+                if self.duration > 0, self.currentTime >= self.duration - 0.05 {
+                    self.currentTime = self.duration
+                    self.hasReachedEnd = true
+                    self.paused = true
+                    self.stopPlaybackTimeTask()
+                    if !self.didNotifyPlaybackEnded {
+                        self.didNotifyPlaybackEnded = true
+                        self.showControlPanel()
+                        self.playbackEndedAction?()
+                    }
+                } else {
+                    self.hasReachedEnd = false
+                }
             }
-            self.loading = false
-            self.paused = true
-            self.currentTime = 0
-            self.referenceWallClockDate = nil
-            self.referencePlaybackTime = 0
-            self.didNotifyPlaybackEnded = false
+        }
+        player.onStateChanged = { [weak self] layer, state in
+            Task { @MainActor in
+                guard let self else { return }
+                switch state {
+                case .preparing:
+                    self.loading = true
+                case .readyToPlay, .bufferFinished, .paused:
+                    let total = layer.player.duration
+                    if !total.isNaN && total.isFinite {
+                        self.duration = max(0, total)
+                    }
+                    self.loading = false
+                default:
+                    break
+                }
+            }
         }
     }
     

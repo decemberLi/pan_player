@@ -75,11 +75,12 @@ struct FileListView115: View {
             }
         }
         .actionSheet(isPresented: $showVideoSelection) {
+            
             ActionSheet(
                 title: Text("选择视频质量"),
                 message: Text("请选择要播放的视频质量"),
                 buttons: availableVideos.map { video in
-                    .default(Text("\(video.title) (\(video.width)x\(video.height))")) {
+                        .default(Text("\(video.title)\(video.title == "原画" ? "" :"( \(video.width)x\(video.height))" )")) {
                         if let remoteURL = URL(string: video.url) {
                             let playURL: URL
                             if video.title == "原画" {
