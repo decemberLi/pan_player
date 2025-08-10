@@ -24,7 +24,7 @@ struct PlayView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.pushWindow) private var pushWindow
-    
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         let url = appModel.streamModel?.url
@@ -38,6 +38,7 @@ struct PlayView: View {
                 KSVideoPlayerView(coordinator: appModel.player.player, url: url, options: options,onShowVR:{
                     Task {
                         await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
+                        dismiss()
                         pushWindow(id: WindowIDs.emptyWindow)
                     }
                 })

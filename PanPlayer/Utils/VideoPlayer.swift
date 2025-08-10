@@ -190,6 +190,7 @@ public class VideoPlayer: Sendable {
         guard let url else  {return}
         player = KSVideoPlayer.Coordinator()
         
+        print("[VideoPlayer] openStream url=\(url.absoluteString)")
         _ = player.makeView(url: url, options: KSOptions())
         scrubState = .notScrubbing
         setupObservers()
@@ -222,6 +223,7 @@ public class VideoPlayer: Sendable {
         loading = true
         Task { @MainActor [weak self] in
             guard let self, let url = self.url else { return }
+            print("[VideoPlayer] preload asset for duration url=\(url.absoluteString)")
             let asset = AVURLAsset(url: url)
             do {
                 let dur = try await asset.load(.duration)
@@ -233,6 +235,7 @@ public class VideoPlayer: Sendable {
                 }
             } catch {
                 self.duration = 0
+                print("[VideoPlayer] preload duration failed: \(error)")
             }
             self.loading = false
             self.paused = true
@@ -312,6 +315,7 @@ public class VideoPlayer: Sendable {
         if hasReachedEnd {
             seek(to: 0)
         }
+        if let url = url { print("[VideoPlayer] play url=\(url.absoluteString)") }
         player.playerLayer?.play()
         paused = false
         hasReachedEnd = false
@@ -322,6 +326,7 @@ public class VideoPlayer: Sendable {
     
     /// Pause media playback.
     public func pause() {
+        if let url = url { print("[VideoPlayer] pause url=\(url.absoluteString)") }
         player.playerLayer?.pause()
         paused = true
         updateCurrentTimeFromReference()
@@ -384,6 +389,7 @@ public class VideoPlayer: Sendable {
     public func stop() {
         tearDownObservers()
         player.playerLayer?.stop()
+        if let url = url { print("[VideoPlayer] stop url=\(url.absoluteString)") }
         title = ""
         details = ""
         duration = 0

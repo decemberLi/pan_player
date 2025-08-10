@@ -22,6 +22,8 @@ class AppModel {
     
     init() {
         KSOptions.secondPlayerType = KSMEPlayer.self
+        // 启动本地HTTP代理，用于原画下载链接的边下边播
+        LocalHTTPProxy.shared.start()
         Task {
           await  videoPlaybackViewModel.loadShaderMaterial()
         }
@@ -29,6 +31,7 @@ class AppModel {
     
     // 选择视频文件
     func selectVideo(url: URL) {
+        print("[AppModel] selectVideo url=\(url.absoluteString)")
         let model = StreamModel(title: "video", details: "", url: url)
         streamModel = model
         player.openStream(model)
@@ -39,17 +42,20 @@ class AppModel {
     
     // 播放视频
     func playVideo() {
+        print("[AppModel] playVideo")
         player.play()
        
     }
     
     // 暂停视频
     func pauseVideo() {
+        print("[AppModel] pauseVideo")
         player.pause()
     }
     
     // 停止视频
     func stopVideo() {
+        print("[AppModel] stopVideo")
         player.stop()
     }
     

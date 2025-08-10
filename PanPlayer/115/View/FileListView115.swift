@@ -80,10 +80,21 @@ struct FileListView115: View {
                 message: Text("请选择要播放的视频质量"),
                 buttons: availableVideos.map { video in
                     .default(Text("\(video.title) (\(video.width)x\(video.height))")) {
-                        if let url = URL(string: video.url) {
-                            selectedVideoURL = url
-                            appModel.selectVideo(url: url)
+                        if let remoteURL = URL(string: video.url) {
+                            let playURL: URL
+                            if video.title == "原画" {
+                                print("[FileListView115] choose 原画 -> via proxy")
+                                playURL = LocalHTTPProxy.shared.proxyURL(for: remoteURL)
+                            } else {
+                                print("[FileListView115] choose 清晰度=\(video.title) -> direct url")
+                                playURL = remoteURL
+                            }
+                            print("[FileListView115] final play url=\(playURL.absoluteString)")
+                            selectedVideoURL = playURL
+                            appModel.selectVideo(url: playURL)
                             showVideo = true
+                        } else {
+                            print("[FileListView115] invalid video.url: \(video.url)")
                         }
                     }
                 } + [.cancel()]
@@ -159,8 +170,11 @@ struct FileListView115: View {
                 
                 
                 if var videoUrls = videoData.data?.videoUrl, !videoUrls.isEmpty {
-                    if !downloadData.isEmpty {
+                    if !downloadData.isEmpty &&  videoUrls.count > 1{
+                        print("[FileListView115] append 原画 download url len=\(downloadData.count)")
                         videoUrls.append(VideoURL115(url: downloadData, height: 0, width: 0, definition: 0, title: "原画", definitionN: 0))
+                    } else if downloadData.isEmpty {
+                        print("[FileListView115] no downloadData for 原画")
                     }
                     await MainActor.run {
                         availableVideos = videoUrls
@@ -174,7 +188,7 @@ struct FileListView115: View {
                     presentToast(toast)
                 }
             } catch {
-                print("获取视频播放地址失败: \(error)")
+                print("[FileListView115] 获取视频播放地址失败: \(error)")
                 let toast = ToastValue(
                     icon: Image(systemName: "exclamationmark.triangle"),
                     message: "获取视频播放地址失败"
