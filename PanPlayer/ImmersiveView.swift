@@ -12,7 +12,6 @@ import AVKit
 
 struct ImmersiveView: View {
     @Environment(AppModel.self) private var appModel
-    @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     
@@ -71,7 +70,7 @@ struct ImmersiveView: View {
                 ControlPanel(closeAction: {
                     Task {
                         await dismissImmersiveSpace()
-                         openWindow(id: WindowIDs.mainWindow)
+                         dismissWindow(id: WindowIDs.emptyWindow)
                     }
                 } )
             }

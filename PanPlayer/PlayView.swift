@@ -22,11 +22,8 @@ struct AVPlayerViewControllerWrapper: UIViewRepresentable {
 
 struct PlayView: View {
     @Environment(AppModel.self) private var appModel
-    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
-    @Environment(\.dismissWindow) private var dismissWindow
-    @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismiss) private var dimiss
+    @Environment(\.pushWindow) private var pushWindow
     
     
     var body: some View {
@@ -41,7 +38,7 @@ struct PlayView: View {
                 KSVideoPlayerView(coordinator: appModel.player.player, url: url, options: options,onShowVR:{
                     Task {
                         await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
-                        dismissWindow()
+                        pushWindow(id: WindowIDs.emptyWindow)
                     }
                 })
             }

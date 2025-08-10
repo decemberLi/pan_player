@@ -4,7 +4,10 @@ import Toasts
 struct SettingsView: View {
     @Environment(\.presentToast) private var presentToast
     @State private var showingClearAlert = false
-    
+    @Environment(\.pushWindow) private var pushWindow
+    @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
+    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     var body: some View {
         let jsonString = UserDefaults.standard.string(forKey: "115token")
         
@@ -25,6 +28,22 @@ struct SettingsView: View {
                             message: "已复制到剪贴板"
                         )
                         presentToast(toast)
+                    }
+                    HStack {
+                        Text("测试窗口")
+                        Spacer()
+                        Text("测试窗口")
+                            .foregroundColor(.secondary)
+                    }
+                    .onTapGesture {
+                        
+                        Task {
+                           await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
+                           pushWindow(id: WindowIDs.emptyWindow)
+                            try await Task.sleep(for: .seconds(3))
+                            await dismissImmersiveSpace()
+                            dismissWindow(id: WindowIDs.emptyWindow)
+                        }
                     }
                 }
                 #endif

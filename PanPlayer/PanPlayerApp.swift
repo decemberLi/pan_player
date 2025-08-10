@@ -20,6 +20,14 @@ struct PanPlayerApp: App {
                 .installToast()
         }
         
+        WindowGroup(id:WindowIDs.emptyWindow) {
+            Rectangle()
+                .fill(.clear)
+                .frame(width: 0, height: 0)
+        }
+        .persistentSystemOverlays(.hidden)
+        .windowStyle(.plain)
+        .windowResizability(.contentSize)
 
         ImmersiveSpace(id: WindowIDs.immersiveSpaceID) {
             ImmersiveView()

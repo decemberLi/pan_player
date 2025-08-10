@@ -17,6 +17,7 @@ struct ContentView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.presentToast) var presentToast
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
+    @Environment(\.openWindow) var openWindow
     
     @State private var showingFilePicker = false
     @State private var showPlayer = false
