@@ -72,7 +72,7 @@ struct ContentView: View {
                     // 115网盘按钮
                     Button(action: {
                         // 检查UserDefaults中是否包含115token
-                        if UserDefaults.standard.string(forKey: "115token") == nil {
+                        if TokenManager115.shared.token == nil {
                             showLoginAlert = true
                         } else {
                             // 导航到FileListView115

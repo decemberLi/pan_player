@@ -179,6 +179,7 @@ class TokenManager115 {
         expiresIn = nil
         lastUpdateTime = nil
         state = nil
+        UserDefaults.standard.set("", forKey: TokenManager115.tokenKey)
     }
 }
 
