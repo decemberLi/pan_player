@@ -86,6 +86,23 @@ struct SettingsView: View {
                                 .font(.caption)
                         }
                     }
+
+                    Button(action: {
+                         let url = URL(string: "mailto:yujia.december@gmail.com")!
+                         UIApplication.shared.open(url)
+                    }) {
+                        HStack {
+                            Image(systemName: "hand.raised")
+                                .foregroundColor(.blue)
+                            Text("联系邮箱 yujia.december@gmail.com")
+                                .foregroundColor(.blue)
+                                .font(.caption)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                    }
                     
 //                    Button(action: {
 //                        // TODO: 跳转到用户协议页面
