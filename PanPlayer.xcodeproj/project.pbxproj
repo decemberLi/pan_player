@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8EC41A5A2E33D71B00534743 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 8EC41A592E33D71B00534743 /* RealityKitContent */; };
 		8EC41AB52E3C779100534743 /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 8EC41AB42E3C779100534743 /* Toasts */; };
 		8EFFAEE12E47466C00B9567B /* KSPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 8EFFAEE02E47466C00B9567B /* KSPlayer */; };
 		8EFFAEEF2E47496E00B9567B /* KSPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 8EFFAEEE2E47496E00B9567B /* KSPlayer */; };
@@ -45,7 +44,6 @@
 			files = (
 				8EC41AB52E3C779100534743 /* Toasts in Frameworks */,
 				8EFFAEE12E47466C00B9567B /* KSPlayer in Frameworks */,
-				8EC41A5A2E33D71B00534743 /* RealityKitContent in Frameworks */,
 				8EFFAEEF2E47496E00B9567B /* KSPlayer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -97,7 +95,6 @@
 			);
 			name = PanPlayer;
 			packageProductDependencies = (
-				8EC41A592E33D71B00534743 /* RealityKitContent */,
 				8EC41AB42E3C779100534743 /* Toasts */,
 				8EFFAEE02E47466C00B9567B /* KSPlayer */,
 				8EFFAEEE2E47496E00B9567B /* KSPlayer */,
@@ -180,7 +177,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.december.PanPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -191,6 +188,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 7;
+				XROS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Debug;
 		};
@@ -209,7 +207,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.december.PanPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -220,6 +218,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 7;
+				XROS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
 		};
@@ -386,10 +385,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8EC41A592E33D71B00534743 /* RealityKitContent */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = RealityKitContent;
-		};
 		8EC41AB42E3C779100534743 /* Toasts */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8EC41AB32E3C779100534743 /* XCRemoteSwiftPackageReference "swiftui-toasts" */;

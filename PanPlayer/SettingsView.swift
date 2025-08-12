@@ -105,21 +105,31 @@ struct SettingsView: View {
 //                    }
                 }
             }
-            .navigationTitle("设置")
-            .navigationBarTitleDisplayMode(.large)
-            .alert("确认清除", isPresented: $showingClearAlert) {
-                Button("取消", role: .cancel) { }
-                Button("清除", role: .destructive) {
-                    TokenManager115.shared.clear()
-                    let toast = ToastValue(
-                        icon: Image(systemName: "checkmark"),
-                        message: "清除成功"
-                    )
-                    presentToast(toast)
-                }
-            } message: {
-                Text("确定要清除115登录信息吗？此操作不可撤销。")
+            
+            // 右侧
+            ZStack {
+                // 背景透明，保持与系统风格一致
+                Color.clear
+                Image(.goodman)
+                    .fixedSize()
+                    .padding()
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        }
+        .navigationTitle("设置")
+        .navigationBarTitleDisplayMode(.large)
+        .alert("确认清除", isPresented: $showingClearAlert) {
+            Button("取消", role: .cancel) { }
+            Button("清除", role: .destructive) {
+                TokenManager115.shared.clear()
+                let toast = ToastValue(
+                    icon: Image(systemName: "checkmark"),
+                    message: "清除成功"
+                )
+                presentToast(toast)
+            }
+        } message: {
+            Text("确定要清除115登录信息吗？此操作不可撤销。")
         }
     }
 }

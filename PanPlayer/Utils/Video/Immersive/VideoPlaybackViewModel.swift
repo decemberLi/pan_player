@@ -102,7 +102,7 @@ final class VideoPlaybackViewModel {
         self.surfaceMaterial = material
     }
 
-    func update() {
+    @MainActor func update() {
         
         player?.onVideoFrame = { buffer in
 //            NSLog("FF width x height = \(CVPixelBufferGetWidth(buffer)) x \(CVPixelBufferGetHeight(buffer))")
@@ -125,7 +125,7 @@ final class VideoPlaybackViewModel {
 //        self.displayLink = displayLink
     }
 
-    func stop() {
+    @MainActor func stop() {
         player?.playerLayer?.pause()
 
         surfaceMaterial = nil

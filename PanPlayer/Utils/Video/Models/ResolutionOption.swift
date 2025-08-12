@@ -6,6 +6,7 @@
 //
 
 import Foundation
+internal import CoreGraphics
 
 /// Simple structure describing a resolution option for an HLS video stream.
 public struct ResolutionOption: Codable, Sendable {

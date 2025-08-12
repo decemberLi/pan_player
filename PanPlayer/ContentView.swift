@@ -7,7 +7,6 @@
 
 import SwiftUI
 import RealityKit
-import RealityKitContent
 import AVKit
 import UniformTypeIdentifiers
 import Toasts
