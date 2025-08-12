@@ -15,7 +15,6 @@
 
 /* Begin PBXFileReference section */
 		8EC41A542E33D71B00534743 /* PanPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PanPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8EC41A582E33D71B00534743 /* RealityKitContent */ = {isa = PBXFileReference; lastKnownFileType = text; path = RealityKitContent; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -74,7 +73,6 @@
 		8EC41A572E33D71B00534743 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				8EC41A582E33D71B00534743 /* RealityKitContent */,
 			);
 			path = Packages;
 			sourceTree = "<group>";
