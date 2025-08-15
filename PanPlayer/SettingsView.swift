@@ -13,40 +13,40 @@ struct SettingsView: View {
         
         NavigationView {
             List {
-                #if DEBUG
-                Section("调试信息") {
-                    HStack {
-                        Text("115Token")
-                        Spacer()
-                        Text(jsonString ?? "未设置")
-                            .foregroundColor(.secondary)
-                    }
-                    .onTapGesture {
-                        UIPasteboard.general.string = jsonString
-                        let toast = ToastValue(
-                            icon: Image(systemName: "checkmark"),
-                            message: "已复制到剪贴板"
-                        )
-                        presentToast(toast)
-                    }
-                    HStack {
-                        Text("测试窗口")
-                        Spacer()
-                        Text("测试窗口")
-                            .foregroundColor(.secondary)
-                    }
-                    .onTapGesture {
-                        
-                        Task {
-                           await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
-                           pushWindow(id: WindowIDs.emptyWindow)
-                            try await Task.sleep(for: .seconds(3))
-                            await dismissImmersiveSpace()
-                            dismissWindow(id: WindowIDs.emptyWindow)
-                        }
-                    }
-                }
-                #endif
+//                #if DEBUG
+//                Section("调试信息") {
+//                    HStack {
+//                        Text("115Token")
+//                        Spacer()
+//                        Text(jsonString ?? "未设置")
+//                            .foregroundColor(.secondary)
+//                    }
+//                    .onTapGesture {
+//                        UIPasteboard.general.string = jsonString
+//                        let toast = ToastValue(
+//                            icon: Image(systemName: "checkmark"),
+//                            message: "已复制到剪贴板"
+//                        )
+//                        presentToast(toast)
+//                    }
+//                    HStack {
+//                        Text("测试窗口")
+//                        Spacer()
+//                        Text("测试窗口")
+//                            .foregroundColor(.secondary)
+//                    }
+//                    .onTapGesture {
+//                        
+//                        Task {
+//                           await openImmersiveSpace(id: WindowIDs.immersiveSpaceID)
+//                           pushWindow(id: WindowIDs.emptyWindow)
+//                            try await Task.sleep(for: .seconds(3))
+//                            await dismissImmersiveSpace()
+//                            dismissWindow(id: WindowIDs.emptyWindow)
+//                        }
+//                    }
+//                }
+//                #endif
                 
                 Section("账户管理") {
                     Button(action: {
