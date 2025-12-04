@@ -130,6 +130,24 @@ kernel void yuv420ToRGB(texture2d<float, access::read> y_inTexture [[ texture(0)
     float r = y + 1.403 * (cr - 0.5);
     float g = y - 0.343 * (cb - 0.5) - 0.714 * (cr - 0.5);
     float b = y + 1.770 * (cb - 0.5);
+    
+    /// 限制颜色值在有效范围内
+    r = clamp(r, 0.0, 1.0);
+    g = clamp(g, 0.0, 1.0);
+    b = clamp(b, 0.0, 1.0);
+    
+    /// 增强颜色饱和度（使颜色更鲜艳）
+    float gray = 0.299 * r + 0.587 * g + 0.114 * b;  // 计算灰度值
+    float saturation = 1.2;  // 饱和度增强系数（从1.15提升到1.2）
+    r = gray + (r - gray) * saturation;
+    g = gray + (g - gray) * saturation;
+    b = gray + (b - gray) * saturation;
+    
+    /// 再次限制颜色值
+    r = clamp(r, 0.0, 1.0);
+    g = clamp(g, 0.0, 1.0);
+    b = clamp(b, 0.0, 1.0);
+    
     outTexture.write(float4(r, g, b, 1.0), gid);
         
 }
@@ -149,5 +167,23 @@ kernel void yuv420PToRGB(texture2d<float, access::read> y_inTexture [[ texture(0
     float r = y + 1.403 * (v - 0.5);
     float g = y - 0.343 * (u - 0.5) - 0.714 * (v - 0.5);
     float b = y + 1.770 * (u - 0.5);
+    
+    /// 限制颜色值在有效范围内
+    r = clamp(r, 0.0, 1.0);
+    g = clamp(g, 0.0, 1.0);
+    b = clamp(b, 0.0, 1.0);
+    
+    /// 增强颜色饱和度（使颜色更鲜艳）
+    float gray = 0.299 * r + 0.587 * g + 0.114 * b;  // 计算灰度值
+    float saturation = 1.2;  // 饱和度增强系数（从1.15提升到1.2）
+    r = gray + (r - gray) * saturation;
+    g = gray + (g - gray) * saturation;
+    b = gray + (b - gray) * saturation;
+    
+    /// 再次限制颜色值
+    r = clamp(r, 0.0, 1.0);
+    g = clamp(g, 0.0, 1.0);
+    b = clamp(b, 0.0, 1.0);
+    
     outTexture.write(float4(r, g, b, 1.0), gid);
 }

@@ -5,19 +5,19 @@
 //  Created by dec on 2025/7/25.
 //
 
-import SwiftUI
-import RealityKit
 import AVKit
-import UniformTypeIdentifiers
-import Toasts
 import PhotosUI
+import RealityKit
+import SwiftUI
+import Toasts
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.presentToast) var presentToast
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
     @Environment(\.openWindow) var openWindow
-    
+
     @State private var showingFilePicker = false
     @State private var showPlayer = false
     @State private var showLoginAlert = false
@@ -25,7 +25,7 @@ struct ContentView: View {
     @State private var path = NavigationPath()
     @State private var showPhotosPicker = false
     @State private var photoPickerItem: PhotosPickerItem?
-    
+
     var body: some View {
         NavigationStack(path: $path) {
             Grid(horizontalSpacing: 30, verticalSpacing: 30) {
@@ -48,7 +48,7 @@ struct ContentView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
+
                     // 文件选择按钮
                     Button(action: {
                         showingFilePicker = true
@@ -67,7 +67,7 @@ struct ContentView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
+
                     // 115网盘按钮
                     Button(action: {
                         // 检查UserDefaults中是否包含115token
@@ -95,24 +95,23 @@ struct ContentView: View {
                     .alert("需要登录", isPresented: $showLoginAlert) {
                         Button("确定") {
                             #if DEBUG
-                            //https://vrplayer.space/?code=26f2ad4e36f385372e6310e52c42832d&state=123456
-                            // Task {
-                            //     do {
-                            //         try await TokenManager115.shared.getToken(code: "26f2ad4e36f385372e6310e52c42832d", stateString: "123456")
-                            //     }catch{
-                                    
-                            //     }
-                            // }
-                            // return
+                                //https://vrplayer.space/?code=26f2ad4e36f385372e6310e52c42832d&state=123456
+                                // Task {
+                                //     do {
+                                //         try await TokenManager115.shared.getToken(code: "26f2ad4e36f385372e6310e52c42832d", stateString: "123456")
+                                //     }catch{
+
+                                //     }
+                                // }
+                                // return
                             #endif
                             showWebView = true
                         }
-                        Button("取消", role: .cancel) { }
+                        Button("取消", role: .cancel) {}
                     } message: {
                         Text("检测到您尚未登录115网盘，点击确定前往登录页面。")
                     }
 
-                   
                 }
             }
             .navigationDestination(for: String.self) { cid in
@@ -127,9 +126,8 @@ struct ContentView: View {
         ) { result in
             switch result {
             case .success(let urls):
-                
                 if let url = urls.first {
-                   _ = url.startAccessingSecurityScopedResource()
+                    _ = url.startAccessingSecurityScopedResource()
                     appModel.selectVideo(url: url)
                     showPlayer = true
                 }
@@ -137,7 +135,9 @@ struct ContentView: View {
                 print("文件选择错误: \(error)")
             }
         }
-        .photosPicker(isPresented: $showPhotosPicker, selection: $photoPickerItem, matching: .videos)
+        .photosPicker(
+            isPresented: $showPhotosPicker, selection: $photoPickerItem, matching: .videos
+        )
         .onChange(of: photoPickerItem) { _, newItem in
             guard let item = newItem else { return }
             Task {
@@ -173,13 +173,13 @@ struct ContentView: View {
                     icon: Image(systemName: "bell"),
                     message: "获取token失败"
                 )
-                guard let code,let state else{
+                guard let code, let state else {
                     presentToast(toast)
                     return
                 }
                 Task {
                     do {
-                        try await TokenManager115.shared.getToken(code: code,stateString: state)
+                        try await TokenManager115.shared.getToken(code: code, stateString: state)
                     } catch {
                         presentToast(toast)
                     }
@@ -188,26 +188,26 @@ struct ContentView: View {
         }
         .onAppear {
             #if DEBUG
-            /*
-             {
-                 "access_token" = "bcb18.28fee7215b91dfbc057cc19b185ee9ea.034c565223d9928bdc011811ff898d6c68bb7b1afeccc1555ccea3612bb9e622";
-                 "expires_in" = 7200;
-                 "refresh_token" = "bcb18.187b9c4a4576dc5f031d0b6d38e851ee3977040a71a2cccffadfb9c2376504e1.151a8a8f810c1d3174959ca1c12e1e6e639205ba0d2c1b49ae0197adade24346";
-             }
-             */
-//              let tokenJsonString = """
-//              {"expires_in":7200,"refresh_token":"bcb18.69dcbebf7dc4bffc839bc5d4f9c46f0a68cf7837d6ba3e0ee0991f9e313d8bb4.c06b68fc7ec7c85fece054e235aaf9b54d280f67a0b12e33a02c320882ac5d70","access_token":"bcb18.c697899cacca8aca9e53e9558814c30d.4b377020b3f961f2b48579465db46592a0407bb56cf42ad8657b0814289e5c02"}
-//              """
-//              UserDefaults.standard.set(tokenJsonString, forKey: "115token")
-//             let date = Date()
-//             UserDefaults.standard.set(date.timeIntervalSince1970, forKey: "115lastUpdateTime")
-//            Task {
-//              try? await  TokenManager115.shared.refreshToken()
-//            }
+                /*
+                 {
+                     "access_token" = "bcb18.28fee7215b91dfbc057cc19b185ee9ea.034c565223d9928bdc011811ff898d6c68bb7b1afeccc1555ccea3612bb9e622";
+                     "expires_in" = 7200;
+                     "refresh_token" = "bcb18.187b9c4a4576dc5f031d0b6d38e851ee3977040a71a2cccffadfb9c2376504e1.151a8a8f810c1d3174959ca1c12e1e6e639205ba0d2c1b49ae0197adade24346";
+                 }
+                 */
+                //              let tokenJsonString = """
+                //              {"expires_in":7200,"refresh_token":"bcb18.69dcbebf7dc4bffc839bc5d4f9c46f0a68cf7837d6ba3e0ee0991f9e313d8bb4.c06b68fc7ec7c85fece054e235aaf9b54d280f67a0b12e33a02c320882ac5d70","access_token":"bcb18.c697899cacca8aca9e53e9558814c30d.4b377020b3f961f2b48579465db46592a0407bb56cf42ad8657b0814289e5c02"}
+                //              """
+                //              UserDefaults.standard.set(tokenJsonString, forKey: "115token")
+                //             let date = Date()
+                //             UserDefaults.standard.set(date.timeIntervalSince1970, forKey: "115lastUpdateTime")
+                //            Task {
+                //              try? await  TokenManager115.shared.refreshToken()
+                //            }
             #endif
         }
     }
-    
+
 }
 
 #Preview(windowStyle: .automatic) {
