@@ -55,7 +55,6 @@
 			isa = PBXGroup;
 			children = (
 				8EC41A562E33D71B00534743 /* PanPlayer */,
-				8EC41A572E33D71B00534743 /* Packages */,
 				8EC41A552E33D71B00534743 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,13 +65,6 @@
 				8EC41A542E33D71B00534743 /* PanPlayer.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		8EC41A572E33D71B00534743 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Packages;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
