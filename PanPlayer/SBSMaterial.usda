@@ -39,28 +39,6 @@ def Xform "Root"
             int ui:nodegraph:node:stackingOrder = 79
         }
 
-        def Shader "ColorAdjust_Left"
-        {
-            uniform token info:id = "ND_multiply_color3"
-            color3f inputs:in1.connect = </Root/SBSMaterial/Left.outputs:out>
-            color3f inputs:in2 = (0.5, 0.5, 0.5)
-            color3f outputs:out
-            float2 ui:nodegraph:node:pos = (-200, 10.6875)
-            float2 ui:nodegraph:node:size = (158.5, 99)
-            int ui:nodegraph:node:stackingOrder = 81
-        }
-
-        def Shader "ColorAdjust_Right"
-        {
-            uniform token info:id = "ND_multiply_color3"
-            color3f inputs:in1.connect = </Root/SBSMaterial/Right.outputs:out>
-            color3f inputs:in2 = (0.5, 0.5, 0.5)
-            color3f outputs:out
-            float2 ui:nodegraph:node:pos = (-200, 275.46094)
-            float2 ui:nodegraph:node:size = (158.5, 99)
-            int ui:nodegraph:node:stackingOrder = 188
-        }
-
         def Shader "PreviewSurface"
         {
             uniform token info:id = "ND_realitykit_unlit_surfaceshader"
@@ -103,4 +81,3 @@ def Xform "Root"
         }
     }
 }
-
