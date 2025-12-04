@@ -18,7 +18,7 @@ class AppModel {
     var videoPlaybackViewModel = VideoPlaybackViewModel()
     var player = VideoPlayer()
     
-    var streamModel : StreamModel?
+    var streamModel : StreamModel?       
     
     init() {
         KSOptions.secondPlayerType = KSMEPlayer.self
@@ -27,6 +27,27 @@ class AppModel {
         Task {
           await  videoPlaybackViewModel.loadShaderMaterial()
         }
+        
+        // 监听app状态变化
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            LocalHTTPProxy.shared.start()
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            LocalHTTPProxy.shared.stop()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // 选择视频文件
