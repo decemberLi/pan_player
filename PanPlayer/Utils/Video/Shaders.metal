@@ -138,10 +138,16 @@ kernel void yuv420ToRGB(texture2d<float, access::read> y_inTexture [[ texture(0)
     
     /// 增强颜色饱和度（使颜色更鲜艳）
     float gray = 0.299 * r + 0.587 * g + 0.114 * b;  // 计算灰度值
-    float saturation = 1.2;  // 饱和度增强系数（从1.15提升到1.2）
+    float saturation = 1.0;  // 饱和度增强系数
     r = gray + (r - gray) * saturation;
     g = gray + (g - gray) * saturation;
     b = gray + (b - gray) * saturation;
+    
+    /// 增强对比度（使明暗对比更明显）
+    float contrast = 1.3;  // 对比度增强系数
+    r = ((r - 0.5) * contrast) + 0.5;
+    g = ((g - 0.5) * contrast) + 0.5;
+    b = ((b - 0.5) * contrast) + 0.5;
     
     /// 再次限制颜色值
     r = clamp(r, 0.0, 1.0);
@@ -175,10 +181,16 @@ kernel void yuv420PToRGB(texture2d<float, access::read> y_inTexture [[ texture(0
     
     /// 增强颜色饱和度（使颜色更鲜艳）
     float gray = 0.299 * r + 0.587 * g + 0.114 * b;  // 计算灰度值
-    float saturation = 1.2;  // 饱和度增强系数（从1.15提升到1.2）
+    float saturation = 1.0;  // 饱和度增强系数
     r = gray + (r - gray) * saturation;
     g = gray + (g - gray) * saturation;
     b = gray + (b - gray) * saturation;
+    
+    /// 增强对比度（使明暗对比更明显）
+    float contrast = 1.3;  // 对比度增强系数
+    r = ((r - 0.5) * contrast) + 0.5;
+    g = ((g - 0.5) * contrast) + 0.5;
+    b = ((b - 0.5) * contrast) + 0.5;
     
     /// 再次限制颜色值
     r = clamp(r, 0.0, 1.0);

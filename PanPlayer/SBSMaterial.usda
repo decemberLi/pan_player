@@ -30,9 +30,9 @@ def Xform "Root"
         def Shader "GeometrySwitchCameraIndex"
         {
             uniform token info:id = "ND_realitykit_geometry_switch_cameraindex_color3"
-            color3f inputs:left.connect = </Root/SBSMaterial/ColorAdjust_Left.outputs:out>
-            color3f inputs:mono.connect = </Root/SBSMaterial/ColorAdjust_Left.outputs:out>
-            color3f inputs:right.connect = </Root/SBSMaterial/ColorAdjust_Right.outputs:out>
+            color3f inputs:left.connect = </Root/SBSMaterial/Left.outputs:out>
+            color3f inputs:mono.connect = </Root/SBSMaterial/Left.outputs:out>
+            color3f inputs:right.connect = </Root/SBSMaterial/Right.outputs:out>
             color3f outputs:out
             float2 ui:nodegraph:node:pos = (-23.292734, 86.06585)
             float2 ui:nodegraph:node:size = (237, 145)
@@ -43,7 +43,7 @@ def Xform "Root"
         {
             uniform token info:id = "ND_multiply_color3"
             color3f inputs:in1.connect = </Root/SBSMaterial/Left.outputs:out>
-            color3f inputs:in2 = (1.5, 1.5, 1.5)
+            color3f inputs:in2 = (0.5, 0.5, 0.5)
             color3f outputs:out
             float2 ui:nodegraph:node:pos = (-200, 10.6875)
             float2 ui:nodegraph:node:size = (158.5, 99)
@@ -54,7 +54,7 @@ def Xform "Root"
         {
             uniform token info:id = "ND_multiply_color3"
             color3f inputs:in1.connect = </Root/SBSMaterial/Right.outputs:out>
-            color3f inputs:in2 = (1.5, 1.5, 1.5)
+            color3f inputs:in2 = (0.5, 0.5, 0.5)
             color3f outputs:out
             float2 ui:nodegraph:node:pos = (-200, 275.46094)
             float2 ui:nodegraph:node:size = (158.5, 99)
