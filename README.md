@@ -2,6 +2,8 @@
 
 一个基于 SwiftUI + RealityKit 的沉浸式视频播放器，面向 visionOS。支持本地视频/相册视频/115 网盘视频播放，并可在沉浸式空间中以半球（VR180）投影方式观看。播放控制采用自定义控制面板，支持快进/快退、拖拽进度条、分辨率与音轨选项展示（当流提供时）。
 
+Android版本[decemberLi/easy_vr_player](https://github.com/decemberLi/easy-vr-player-android)
+
 ### 核心特性
 
 - **沉浸式播放（VR180）**: 在 `ImmersiveSpace` 中使用自定义球面网格进行半球投影，结合 Metal 计算着色器实现高效的 YUV → RGB 转换。
