@@ -110,7 +110,7 @@ Android版本[decemberLi/easy_vr_player](https://github.com/decemberLi/easy-vr-p
 
 - `FFmpegFrameDecoder` 方案暂未启用，当前使用 KSPlayer 的回调帧通路（`VideoPlaybackViewModel.player?.onVideoFrame`）驱动纹理更新。
 - 码率/分辨率/音轨选项仅在 HLS 流（m3u8）且清单包含相关信息时可见。
-- 115 网盘接口使用线上服务，需正常的 OAuth 流程；Debug 下提供了便捷复制/测试入口。
+- 115 网盘授权码通过 Cloudflare Worker 兑换 token，其余 115 API 由客户端直连；Debug 下提供了便捷复制/测试入口。
 - 沉浸式为 VR180 半球投影，若视频为其他投影方式（VR360/矩形），需调整 `VideoTools` 或 `StreamModel.projection` 的使用策略。
 
 ### 本地 HTTP 代理（边下边播）

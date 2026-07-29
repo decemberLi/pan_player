@@ -22,6 +22,8 @@ class TokenManager115 {
     private static let tokenKey = "115token"
     private static let clientID = "100197637"
     private static let redirectURI = "https://vrplayer.space"
+    private static let tokenExchangeBaseURL =
+        "https://easy-vr-player-115-auth.yujia-december.workers.dev/api/115/authCodeToToken"
     
     var token: String?
     var refreshToken: String?
@@ -119,15 +121,13 @@ class TokenManager115 {
     }
 
     func getToken(code: String,stateString:String) async throws {
-        //请求接口 https://vocalremover.us/api/115/authCodeToToken/{code}?state=\(state)
+        // 请求 Cloudflare Worker：/api/115/authCodeToToken/{code}?state=\(state)
         state = stateString
         guard let state else {
             throw TokenManagerError.invalidState
         }
         
-        let baseURL = "https://vocalremover.us/api/115/authCodeToToken"
-        
-        var components = URLComponents(string: baseURL)
+        var components = URLComponents(string: TokenManager115.tokenExchangeBaseURL)
         components?.path = "/api/115/authCodeToToken/\(code)"
         components?.queryItems = [URLQueryItem(name: "state", value: state)]
         
@@ -182,4 +182,3 @@ class TokenManager115 {
         UserDefaults.standard.set("", forKey: TokenManager115.tokenKey)
     }
 }
-
